@@ -10,7 +10,7 @@ use super::{
     utils::{is_en_passant_discovered_check, is_promotion_square, look_up_pawn_attacks},
 };
 use crate::{constants::constants::{WINNER_BLACK, WINNER_DRAW, WINNER_WHITE}, game_bit_board::{
-    _move::{_move::Move, move_contants::*}, board::Board, enums::{Color, PieceType}, move_generator::utils::print_board, utils::{
+    _move::{_move::Move, move_contants::*}, board::Board, enums::{Color, PieceType}, utils::{
         bitwise_utils::{east_one, north_one, pop_lsb, south_one, to_bitboard_position, west_one},
         utils::is_pawn_in_initial_position,
     }

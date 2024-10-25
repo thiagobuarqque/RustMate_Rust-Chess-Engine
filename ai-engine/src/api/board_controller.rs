@@ -69,49 +69,6 @@ pub async fn load_fen(
     get_board_response(board, &mut move_generator.lock().unwrap())
 }
 
-// #[post("/ai/time_to_think")]
-// pub async fn set_ai_depth(
-//     depth: web::Json<AIDepthDTO>,
-//     global_state: web::Data<Mutex<GlobalState>>,
-// ) -> impl Responder {
-//     global_state.lock().unwrap().seconds_to_think = depth.time_to_think;
-
-//     HttpResponse::Ok()
-// }
-
-// #[post("/ai/move")]
-// pub async fn ai_move(global_state: web::Data<Mutex<GlobalState>>) -> impl Responder {
-//     let mut _global_state = global_state.lock().unwrap();
-
-//     let time_to_think = _global_state.seconds_to_think;
-
-//     if _global_state.board.is_game_finished() {
-//         return HttpResponse::Ok().json(json!({
-//             "depth": 0,
-//             "duration": 0,
-//             "evaluation": 0,
-//             "aiMove": None::<Move>
-//         }));
-//     }
-
-//     let mut board = _global_state.board.to_owned();
-    
-//     let ai_player = &mut _global_state.ai;
-
-//     let (duration, depth, evaluation, ai_move) = ai_player.get_move(&mut board, time_to_think);
-
-//     let board = &mut _global_state.board;
-
-//     let _ = board.move_piece(&ai_move);
-
-//     HttpResponse::Ok().json(json!({
-//         "depth": depth,
-//         "duration": duration,
-//         "evaluation": evaluation,
-//         "aiMove": ai_move
-//     }))
-// }
-
 pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mut MutexGuard<'_, MoveGenerator>) -> HttpResponse {
     let fen = board.to_fen();
     let en_passant = board.get_en_passant_bb_position();
@@ -131,7 +88,6 @@ pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mu
         "zobrit": zobrist,
         "pieces": pieces,
         "whiteKingInCheck": false
-        // "boardEvaluation": get_board_value(board, board.is_white_move() && !board.is_game_finished(), &pieces)
     }))
 }
 
