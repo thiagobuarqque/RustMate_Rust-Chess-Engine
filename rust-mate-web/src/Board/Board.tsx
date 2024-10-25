@@ -10,7 +10,7 @@ import http from "../http-common";
 
 import "./board.scss";
 import { CAPTURE, INITIAL_FEN } from "./constants";
-import Logs, { getBoardEvaluationMessage } from "./Logs";
+
 import Cell from "./Cell";
 
 const playMoveAudio = (capture: boolean) => {
@@ -169,10 +169,6 @@ const Board = () => {
 			.then((data) => {
 				setBoard(data);
 
-				// if (!data.siteToMove) {
-				// 	getAiMove();
-				// }
-
 				setLastAIResponse(undefined);
 			});
 	};
@@ -183,21 +179,6 @@ const Board = () => {
 
 	return (
 		<>
-			<div id="floating-forms">
-				<form method="post" onSubmit={loadFEN}>
-					<input type="text" name="fen" id="input-fen" />
-					<button type="submit" id="reset-btn">
-						Load FEN
-					</button>
-				</form>
-				{/* <form method="post" onSubmit={fetchCountMoves}>
-          <input type="number" name="rawDepth" id="raw_search_depth" />
-          <button type="submit" id="count_moves_btn">
-            Count
-          </button>
-        </form>*/}
-			</div>
-
 			<div id="board">
 				<div id="white-captures" className="captures">
 					{board.whiteCaptures.map((piece_fen, i) => (
@@ -230,14 +211,7 @@ const Board = () => {
 						}).reverse()}
 					</div>
 				))}
-				{board.winner !== "-" && (
-					<span id="winner-announcement">
-						{getBoardEvaluationMessage(board.evaluation, board.winner)}
-					</span>
-				)}
 			</div>
-
-			<Logs aiResponse={lastAIResponse} board={board} isWaitingForAI={isWaitingForAI} />
 		</>
 	);
 };

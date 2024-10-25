@@ -12,28 +12,34 @@ interface IProps {
 const Logs: React.FC<IProps> = ({aiResponse, board, isWaitingForAI}) => {
   return (
     <div id='logs'>
-        <div id="board-info">
-                <h1>Board:</h1>
-                {/* <span className='log'><strong>Evaluation:</strong> {board.evaluation.toFixed(1)} ({getBoardEvaluationMessage(board.evaluation, board.winner)})</span> */}
-                <span className='log'><strong>Position hash:</strong> {getZobritBinary(board.zobrit)}</span>
-                <span className='log'><strong>Black in check:</strong> {board.blackKingInCheck.toString()}</span>
-                <span className='log'><strong>White in check:</strong> {board.whiteKingInCheck.toString()}</span>
-            </div>
-        <hr></hr>
-        {
-            (aiResponse && !isWaitingForAI) &&
-            <div id="ai-move-info">
-                <h1>AI move:</h1>
-                <span className='log'><strong>Depth:</strong> {aiResponse.depth}</span>
-                <span className='log'><strong>Duration:</strong> {aiResponse.duration}ms</span>
-                <span className='log'><strong>Evaluation:</strong> {aiResponse.evaluation.toFixed(1)}</span>
-                {/* <span className='log'><strong>Best move:</strong> {aiResponse.aiMove.notation}</span> */}
-            </div>
-        }
+        <ul id="moves">
+          <li><button className='move-btn'>e5</button></li>
+          <li><button className='move-btn selected'>♞xe5</button></li>
+          <li><button className='move-btn'>♖e5</button></li>
+        </ul>
 
-        {
-            isWaitingForAI && <h1>AI is thinking...</h1>
-        }
+        <div id="move-infos">
+          <div className="move-info">
+            <span className="move-info-label">Zobrist:</span>
+            <span className="move-info-value">---</span>
+          </div>
+          <div className="move-info">
+            <span className="move-info-label">Nodes searched:</span>
+            <span className="move-info-value">---</span>
+          </div>
+          <div className="move-info">
+            <span className="move-info-label">Time:</span>
+            <span className="move-info-value">---</span>
+          </div>
+          <div className="move-info">
+            <span className="move-info-label">Depth:</span>
+            <span className="move-info-value">---</span>
+          </div>
+          <div className="move-info">
+            <span className="move-info-label">Position evaluation:</span>
+            <span className="move-info-value">---</span>
+          </div>
+        </div>
     </div>
   )
 }
