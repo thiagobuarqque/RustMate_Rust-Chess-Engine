@@ -41,7 +41,7 @@ pub fn get_piece_symbol(color: Color, piece_type: PieceType) -> String {
     .to_string()
 }
 
-pub fn get_piece_letter(color: Color, piece_type: PieceType) -> String {
+pub fn get_piece_letter(color: Color, piece_type: &PieceType) -> String {
     (match (color, piece_type) {
         (Color::Black, PieceType::Bishop) => "b",
         (Color::Black, PieceType::King) => "k",

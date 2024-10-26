@@ -28,7 +28,7 @@ fn _count_moves(
         return 1;
     }
 
-    let mut moves = move_generator.get_moves(board);
+    let mut moves = move_generator.get_moves(board).unwrap();
 
     let mut num_positions = 0;
 

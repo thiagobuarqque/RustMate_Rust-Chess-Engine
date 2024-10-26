@@ -23,6 +23,8 @@ pub struct Board {
     side_to_move: Color,
     black_king_moved: bool,
     white_king_moved: bool,
+    black_captures: Vec<PieceType>,
+    white_captures: Vec<PieceType>,
 
     // Castling rights
     // 0000 1111
@@ -34,7 +36,7 @@ pub struct Board {
     // Bit 7: Black queenside castling.
     castling_rights: u8,
 
-    winner: char,
+    winner: String,
     full_move_clock: u32,
     half_move_clock: u32,
 
@@ -83,11 +85,13 @@ impl Board {
             black_king_moved: false,
             white_king_moved: false,
             castling_rights: 0,
-            winner: WINNER_NONE,
+            winner: WINNER_NONE.to_string(),
             full_move_clock: 1,
             half_move_clock: 0,
             moves_history: Vec::new(),
             zobrist: Zobrist::new(),
+            black_captures: Vec::with_capacity(16),
+            white_captures: Vec::with_capacity(16),
         }
     }
 
@@ -179,7 +183,7 @@ impl Board {
             board.full_move_clock = parts[5].parse::<u32>().unwrap();
         }
 
-        board.winner = WINNER_NONE;
+        board.winner = WINNER_NONE.to_string();
 
         let mut zobrist = board.zobrist.clone();
 
@@ -220,16 +224,24 @@ impl Board {
         self.side_to_move = Color::White;
         self.black_king_moved = false;
         self.white_king_moved = false;
-        self.winner = WINNER_NONE;
+        self.winner = WINNER_NONE.to_string();
         self.full_move_clock = 1;
         self.half_move_clock = 0;
         self.moves_history = Vec::new();
         self.zobrist = Zobrist::new();
     }
 
-    pub fn set_winner(&mut self, winner: char) { self.winner = winner; }
+    pub fn set_winner(&mut self, winner: String) { self.winner = winner; }
 
-    pub fn get_winner(&self) -> char { self.winner }
+    pub fn get_winner(&self) -> String { self.winner.clone() }
+
+    pub fn get_black_captures(&self) -> &Vec<PieceType> {
+        &self.black_captures
+    }
+
+    pub fn get_white_captures(&self) -> &Vec<PieceType> {
+        &self.white_captures
+    }
 
     pub fn is_game_finished(&self) -> bool { self.get_winner() != WINNER_NONE }
 
@@ -321,7 +333,7 @@ impl Board {
         self.side_to_move = self.side_to_move.opponent();
 
         if self.is_game_finished() {
-            self.winner = WINNER_NONE;
+            self.winner = WINNER_NONE.to_string();
         }
 
         self.moves_history.remove(self.moves_history.len() - 1);
@@ -351,6 +363,12 @@ impl Board {
                 piece_type,
                 self.en_passant_piece_square_bb,
             );
+
+            if color.is_black() {
+                self.black_captures.push(PieceType::Pawn);
+            } else {
+                self.white_captures.push(PieceType::Pawn);
+            }
         }
 
         // When a move is made and en passant is available, remove it
@@ -380,6 +398,12 @@ impl Board {
 
         if opponent_piece != PieceType::Empty {
             self.remove_piece(color.opponent(), opponent_piece, to);
+
+            if color.is_black() {
+                self.black_captures.push(opponent_piece);
+            } else {
+                self.white_captures.push(opponent_piece);
+            }
         }
 
         self.place_piece(color, piece_type, to);
@@ -567,7 +591,7 @@ impl Board {
                     }
                     let color = self.get_piece_color(square);
 
-                    fen.push_str(&get_piece_letter(color, piece_type).as_str());
+                    fen.push_str(&get_piece_letter(color, &piece_type).as_str());
                 }
             }
             if empty_squares > 0 {

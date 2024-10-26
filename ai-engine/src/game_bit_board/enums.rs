@@ -3,6 +3,8 @@ use std::fmt::Debug;
 
 use serde::{Deserialize, Serialize};
 
+use super::utils::utils::get_piece_letter;
+
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum Color {
     Black,
@@ -48,5 +50,11 @@ impl fmt::Display for PieceType {
         write!(f, "{:?}", self)
         // or, alternatively:
         // fmt::Debug::fmt(self, f)
+    }
+}
+
+impl PieceType {
+    pub fn to_fen(&self, color: Color) -> String {
+        get_piece_letter(color, self)
     }
 }

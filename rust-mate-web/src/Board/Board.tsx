@@ -26,15 +26,13 @@ const playMoveAudio = (capture: boolean) => {
 
 const INVALID_POSITION = -1;
 
-const getPieceMove = (moves: TMove[], position: number) => {
-	return moves.find((move) => move.to === position);
-};
-
 const Board = () => {
 	const [selectedPiecePos, setSelectedPiecePos] = useState<number>(INVALID_POSITION);
 	const [lastMovePos, setLastMovePos] = useState<number>(INVALID_POSITION);
 	const [isWaitingForAI, setIsWaitingForAI] = useState(false);
 	const [lastAIResponse, setLastAIResponse] = useState<AIResponse>();
+	// const [promotionOption, setPromotionOption] = useState<number>(0);
+	const [promotionPosition, setPromotionPosition] = useState<number>(INVALID_POSITION);
 	const [board, setBoard] = useState<TBoard>({
 		blackCaptures: [],
 		blackKingInCheck: false,
@@ -55,26 +53,45 @@ const Board = () => {
 		}
 
 		if (board.siteToMove !== piece.color) {
-      alert("LOG: It's not your turn");
+      		alert("LOG: It's not your turn");
 			// Play invalid move sound
 			return;
 		}
+
+		hideAllAvailableMoves();
+
 		if (selectedPiecePos === piece.position) {
 			setSelectedPiecePos(INVALID_POSITION);
+
+			// hideAllAvailableMoves();
 		} else {
-			if (selectedPiecePos !== INVALID_POSITION) {
-				togglePieceAvailableMoves(selectedPiecePos);
-			}
+			// if (selectedPiecePos !== INVALID_POSITION) {
+			// 	hideAllAvailableMoves();
+			// }
 
 			setSelectedPiecePos(piece.position);
+			showPieceAvailableMoves(piece.position);
 		}
-		togglePieceAvailableMoves(piece.position);
 	};
 
-	const togglePieceAvailableMoves = (position: number) => {
-		if (isWaitingForAI) {
-			return;
-		}
+	const hideAllAvailableMoves = () => {
+		document.querySelectorAll('.capture-receptor').forEach((el) => {
+			el.classList.remove('capture-receptor')
+		});
+
+		document.querySelectorAll('.empty-receptor').forEach((el) => {
+			el.classList.remove('empty-receptor')
+		});
+
+		document.querySelectorAll('button.piece-button.disabled').forEach((el) => {
+			el.classList.remove('disabled')
+		});
+	}
+
+	const showPieceAvailableMoves = (position: number) => {
+		// if (isWaitingForAI) {
+		// 	return;
+		// }
 
 		board.pieces[position].moves.forEach((move) => {
 			const to_position = move.to
@@ -85,49 +102,73 @@ const Board = () => {
 
 			const cell = document.querySelector(`.cell[data-pos='${to_position}']`) as HTMLDivElement;
 
-			cell.classList.toggle(className);
+			cell.classList.add(className);
 
 			const cellPiece = document.querySelector(
 				`.cell[data-pos='${to_position}'] button.piece-button`
 			) as HTMLDivElement;
 
-			cellPiece?.classList.toggle("disabled");
+			cellPiece?.classList.add("disabled");
 		});
 	};
 
 	const onMovePiece = (cell: HTMLDivElement, cellPosition: number) => {
-		if (selectedPiecePos === INVALID_POSITION) {
-      return;
+		if (selectedPiecePos === INVALID_POSITION || cellPosition == selectedPiecePos) {
+      		return;
 		}
 
-    const move = getPieceMove(board.pieces[selectedPiecePos].moves, cellPosition);
+		let moves = board.pieces[selectedPiecePos].moves;
 
-    if (move === undefined) {
-      console.log("Could not find move");
+		moves = moves.filter((move) => move.to === cellPosition)
 
-      return;
-    }
+		if (!moves.length) {
+			console.log("Could not find move");
 
-    // TODO: Add the option to choose the promotion
-    // if (move.promotion) {
-    // 	move.promotionType = TColor.White | TPieceType.Queen;
-    // }
+			return;
+		}
 
-    setSelectedPiecePos(INVALID_POSITION);
+		// TODO: Add the option to choose the promotion
+		if (moves.length > 1 && promotionPosition === INVALID_POSITION) {
+			setPromotionPosition(moves[0].to);
+		} else if (promotionPosition === INVALID_POSITION) {
+			movePiece(moves[0]);
+		}
 
-    const cellPiece = document.querySelector(
-      `.cell[data-pos='${selectedPiecePos}'] button.piece-button.disabled`
-    ) as HTMLDivElement;
-
-    cellPiece?.classList.remove("disabled");
-
-    playMoveAudio((move.flags & CAPTURE) !== 0);
-
-    togglePieceAvailableMoves(selectedPiecePos);
-
-    movePiece(move);
-    setLastMovePos(move.from);
 	};
+
+	function movePiece(move: TMove) {
+		setSelectedPiecePos(INVALID_POSITION);
+
+		const cellPiece = document.querySelector(
+			`.cell[data-pos='${selectedPiecePos}'] button.piece-button.disabled`
+		) as HTMLDivElement;
+
+		cellPiece?.classList.remove("disabled");
+
+		playMoveAudio((move.flags & CAPTURE) !== 0);
+
+		hideAllAvailableMoves();
+
+		makeMove(move);
+		setLastMovePos(move.from);
+	}
+
+	const movePromotionPawn = (promotionOption: number) => {
+		// setPromotionPosition(promotionOption);
+
+		let moves = board.pieces[selectedPiecePos].moves;
+
+		const move = moves.filter((move) => move.to === promotionPosition && move.flags === promotionOption);
+
+		if (move.length != 1) {
+			alert("Error when promoting pawn")
+
+			return;
+		}
+
+		movePiece(move[0]);
+		setPromotionPosition(INVALID_POSITION);
+	}
 
 	const fetchBoard = async () => {
 		return http
@@ -138,7 +179,7 @@ const Board = () => {
 			});
 	};
 
-	const movePiece = (move: TMove) => {
+	const makeMove = (move: TMove) => {
 		http.post<TBoard>("/board/move/piece", move)
 			.then((response) => response.data)
 			.then((data) => {
@@ -180,6 +221,11 @@ const Board = () => {
 	return (
 		<>
 			<div id="board">
+				<div id="winner-modal" className={`modal-background ${board.winner === "-" ? 'opacity-0 no-point-events' : ''}`}>
+					<div id="content">
+						<h1>{board.winner}{board.winner !== 'Draw' ? ' won!' : ''}</h1>
+					</div>
+				</div>
 				<div id="white-captures" className="captures">
 					{board.whiteCaptures.map((piece_fen, i) => (
 						<img key={i} className="captured_piece" src={PIECE_ICONS[piece_fen]} alt={piece_fen} />
@@ -193,19 +239,20 @@ const Board = () => {
 				{[7, 6, 5, 4, 3, 2, 1, 0].map((row) => (
 					<div key={row} className="row">
 						{[0, 1, 2, 3, 4, 5, 6, 7].map((column) => {
-              const position = (row * 8) + (7 - column);
+              				const position = (row * 8) + (7 - column);
 
 							return (
 								<Cell
-                  key={position}
+                  					key={position}
 									board={board}
 									column={column}
 									onClickPiece={onPieceSelect}
 									onMovePiece={onMovePiece}
 									piece={board.pieces[position]}
-                  position={position}
+									position={position}
 									row={row}
 									selectedPiecePosition={selectedPiecePos}
+									onPromotionSelection={promotionPosition === position ? movePromotionPawn : undefined}
 								/>
 							);
 						}).reverse()}

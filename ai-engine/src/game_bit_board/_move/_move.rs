@@ -31,7 +31,7 @@ use super::move_contants::*;
 /// | 1110 | Rook Promo Capture     |
 /// | 1111 | Queen Promo Capture    |
 /// ```
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Copy, Debug, Clone, Deserialize, Serialize)]
 pub struct Move {
     _move: u16,
     en_passant_bb_position: u64,

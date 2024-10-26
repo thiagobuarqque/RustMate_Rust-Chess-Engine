@@ -15,7 +15,7 @@ export type TBoard = {
   whiteCaptures: string[];
   whiteKingInCheck: boolean;
   siteToMove: TColor;
-  winner: "-" | "b" | "w" | "d";
+  winner: "-" | "Black" | "White" | "Draw";
   zobrit: number;
 };
 

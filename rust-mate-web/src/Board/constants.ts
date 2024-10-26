@@ -28,3 +28,5 @@ export const KNIGHT_PROMOTION_CAPTURE: number = 0xC;
 export const BISHOP_PROMOTION_CAPTURE: number = 0xD;
 export const ROOK_PROMOTION_CAPTURE: number = 0xE;
 export const QUEEN_PROMOTION_CAPTURE: number = 0xF;
+
+export type TPromotionOption = typeof KNIGHT_PROMOTION | typeof BISHOP_PROMOTION

@@ -5,7 +5,7 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use serde_json::{json, Value};
 
 use crate::{
-    dto::dtos::{FenDTO, MoveDTO, MovesCountDTO}, game_bit_board::{_move::moves_counter::count_moves, board::Board, move_generator::move_generator::MoveGenerator, utils::utils::get_piece_letter}
+    dto::dtos::{FenDTO, MoveDTO, MovesCountDTO}, game_bit_board::{_move::{_move::Move, moves_counter::count_moves}, board::Board, enums::Color, move_generator::move_generator::MoveGenerator, utils::utils::get_piece_letter}
 };
 
 #[get("/board")]
@@ -40,21 +40,35 @@ pub async fn move_piece(
 
     let mut move_generator= move_generator.lock().unwrap();
 
-    let moves = move_generator.get_moves(board);
+    let moves = move_generator
+        .get_moves(board).unwrap();
 
-    for _move2 in moves {
-        if _move2.get_from() != _move1.from || _move2.get_to() != _move1.to {
-            continue;
-        }
+    let moves = moves.iter().filter(|_move2| _move2.get_from() == _move1.from && _move2.get_to() == _move1.to).collect::<Vec<&Move>>();
 
-        board.move_piece(&mut _move2.clone());
-
-        return get_board_response(board, &mut move_generator);
+    if moves.is_empty() {
+        return HttpResponse::NotFound().json(json!({
+            "message": "Move not found"
+        }));
     }
 
-    HttpResponse::NotFound().json(json!({
-        "message": "Move not found"
-    }))
+    let mut _move = (*moves.first().unwrap()).clone();
+
+    if moves.len() > 1 {
+        for _move2 in moves {
+            if _move2.get_flags() == _move1.flags {
+                _move = _move2.clone();
+                break;
+            }
+        }
+    }
+
+    board.move_piece(&mut _move);
+    
+    get_board_response(board, &mut move_generator)
+
+    // HttpResponse::NotFound().json(json!({
+    //     "message": "Move not found"
+    // }))
 }
 
 #[post("/board/load/fen")]
@@ -77,12 +91,15 @@ pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mu
     
     let pieces: Vec<Value> = get_pieces(board, move_generator);
 
+    let black_captures = board.get_black_captures().iter().map(|capture| capture.to_fen(Color::White)).collect::<Vec<String>>();
+    let white_captures = board.get_white_captures().iter().map(|capture| capture.to_fen(Color::Black)).collect::<Vec<String>>();
+
     HttpResponse::Ok().json(json!({
-        "blackCaptures": Vec::<String>::new(),
+        "blackCaptures": black_captures,
         "enPassant": en_passant,
         "blackKingInCheck": false,
         "fen": fen,
-        "whiteCaptures": Vec::<String>::new(),
+        "whiteCaptures": white_captures,
         "siteToMove": side_to_move,
         "winner": board.get_winner(),
         "zobrit": zobrist,
@@ -92,14 +109,17 @@ pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mu
 }
 
 fn get_pieces(board: &mut Board, move_generator: &mut MoveGenerator) -> Vec<Value> {
-    let moves: Vec<MoveDTO> = move_generator.get_moves(board).iter().map(|_move| MoveDTO::from_move(_move)).collect();
+    let moves: Vec<MoveDTO> = match move_generator.get_moves(board) {
+        Ok(moves) => moves.iter().map(|_move| MoveDTO::from_move(_move)).collect(),
+        Err(_) => Vec::new()
+    };
     
     let mut pieces: Vec<Value> = Vec::with_capacity(64);
 
     for square in 0..64 {
         let piece_type = board.get_piece_type(square);
         let piece_color = board.get_piece_color(square);
-        let fen = get_piece_letter(piece_color, piece_type);
+        let fen = get_piece_letter(piece_color, &piece_type);
 
         pieces.push(json!({
             "color": piece_color,

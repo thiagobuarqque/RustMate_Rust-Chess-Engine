@@ -27,11 +27,12 @@ pub struct PieceDTO {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+// #[serde(rename_all = "camelCase")]
 pub struct MoveDTO {
     pub flags: u16,
     pub from: usize,
     pub to: usize,
-    pub promotion_flag: u16
+    // pub promotion_flag: u16
 }
 
 impl MoveDTO {
@@ -40,7 +41,7 @@ impl MoveDTO {
             flags: _move.get_flags(),
             from: _move.get_from(),
             to: _move.get_to(),
-            promotion_flag: 0
+            // promotion_flag: _move.get
         }
     }
 }
