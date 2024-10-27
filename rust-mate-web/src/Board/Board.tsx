@@ -6,10 +6,10 @@ import { AIResponse, TBoard, TMove, TColor, TPieceType, TPiece } from "./types";
 import captureAudio from "../assets/sound/capture.mp3";
 import moveAudio from "../assets/sound/move-self.mp3";
 
-import http from "../http-common";
+import http, { postWithBody } from "../http-common";
 
 import "./board.scss";
-import { CAPTURE, INITIAL_FEN } from "./constants";
+import { CAPTURE, INITIAL_FEN, TEN_MINUTES_IN_SECONDS } from "./constants";
 
 import Cell from "./Cell";
 
@@ -26,26 +26,18 @@ const playMoveAudio = (capture: boolean) => {
 
 const INVALID_POSITION = -1;
 
-const Board = () => {
+interface IProps {
+	board: TBoard,
+	setBoard: (board: TBoard) => void
+}
+
+const Board: React.FC<IProps> = ({board, setBoard}) => {
 	const [selectedPiecePos, setSelectedPiecePos] = useState<number>(INVALID_POSITION);
 	const [lastMovePos, setLastMovePos] = useState<number>(INVALID_POSITION);
 	const [isWaitingForAI, setIsWaitingForAI] = useState(false);
 	const [lastAIResponse, setLastAIResponse] = useState<AIResponse>();
 	// const [promotionOption, setPromotionOption] = useState<number>(0);
 	const [promotionPosition, setPromotionPosition] = useState<number>(INVALID_POSITION);
-	const [board, setBoard] = useState<TBoard>({
-		blackCaptures: [],
-		blackKingInCheck: false,
-		enPassant: 0,
-		evaluation: 0,
-		fen: INITIAL_FEN,
-		whiteCaptures: [],
-		pieces: [],
-		whiteKingInCheck: false,
-		siteToMove: TColor.White,
-		winner: "-",
-		zobrit: 0,
-	});
 
 	const onPieceSelect = (piece: TPiece) => {
 		if (isWaitingForAI) {
@@ -170,15 +162,6 @@ const Board = () => {
 		setPromotionPosition(INVALID_POSITION);
 	}
 
-	const fetchBoard = async () => {
-		return http
-			.get<TBoard>("/board")
-			.then((response) => response.data)
-			.then((data) => {
-				setBoard(data);
-			});
-	};
-
 	const makeMove = (move: TMove) => {
 		http.post<TBoard>("/board/move/piece", move)
 			.then((response) => response.data)
@@ -190,7 +173,7 @@ const Board = () => {
 			});
 	};
 
-	const loadFEN = (e: React.FormEvent<HTMLFormElement>) => {
+	const onLoadFEN = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		const inputFen: HTMLInputElement | null = document.getElementById("input-fen") as HTMLInputElement;
@@ -203,20 +186,12 @@ const Board = () => {
 			fen = inputFen.value.trim();
 		}
 
-		http.post<TBoard>("/board/load/fen", {
-			fen,
-		})
-			.then((response) => response.data)
-			.then((data) => {
-				setBoard(data);
-
-				setLastAIResponse(undefined);
-			});
+		loadFen(fen);
 	};
-
-	useEffect(() => {
-		fetchBoard();
-	}, []);
+	
+	const loadFen = (fen: string) => {
+		postWithBody<TBoard>("/board/load/fen", {fen}, setBoard);
+	}
 
 	return (
 		<>
@@ -224,6 +199,8 @@ const Board = () => {
 				<div id="winner-modal" className={`modal-background ${board.winner === "-" ? 'opacity-0 no-point-events' : ''}`}>
 					<div id="content">
 						<h1>{board.winner}{board.winner !== 'Draw' ? ' won!' : ''}</h1>
+						<button className="play-as-btn primary" onClick={() => loadFen(INITIAL_FEN)}>Play Again</button>
+						{/* <button className="play-as-btn primary">Play as White</button> */}
 					</div>
 				</div>
 				<div id="white-captures" className="captures">

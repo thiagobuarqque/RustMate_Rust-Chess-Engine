@@ -1,15 +1,73 @@
-import React from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import './timer.scss';
+import { TEN_MINUTES_IN_SECONDS } from './constants';
+import { TColor } from './types';
 
-const Timer = () => {
-  return (
-    <div id='timer'>
-      <span id="black-time" className='text-secondary'>10:00</span>
-      <hr></hr>
-      <span id="white-time" className='text-primary-darker-1'>10:00</span>
-    </div>
-  )
+function formatSecondsToMinutes(seconds: number): string {
+	const minutes = Math.floor(seconds / 60);
+	const remainingSeconds = seconds % 60;
+	return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
-export default Timer
+interface IProps {
+  sideToMove: TColor,
+  timeRunning: boolean,
+  setTimeIsUp: (value: boolean) => void
+}
+
+const Timer: React.FC<IProps> = ({ sideToMove, timeRunning, setTimeIsUp }) => {
+  const [timers, setTimers] = useState({
+    [TColor.Black]: TEN_MINUTES_IN_SECONDS,
+    [TColor.White]: TEN_MINUTES_IN_SECONDS,
+  });
+
+  const timeoutRefs = useRef({
+    [TColor.Black]: -1 as number | undefined,
+    [TColor.White]: -1 as number | undefined,
+  });
+
+  const handleTimeout = useCallback((color: TColor, newValue: number) => {
+    timeoutRefs.current[color] = setTimeout(() => {
+      setTimers((prevTimers) => ({ ...prevTimers, [color]: newValue }));
+    }, 1000);
+  }, []);
+
+  const decrement = useCallback(() => {
+    if (!timeRunning) return;
+
+    const color = sideToMove;
+    const newValue = timers[color] - 1;
+
+    if (newValue === 0) {
+      timeoutRefs.current[color] = -1;
+      setTimeIsUp(true);
+    } else {
+      handleTimeout(color, newValue);
+    }
+  }, [sideToMove, timeRunning, timers, handleTimeout, setTimeIsUp]);
+
+  useEffect(() => {
+    decrement();
+  }, [decrement]);
+
+  useEffect(() => {
+    timeoutRefs.current[TColor.Black] = -1;
+    timeoutRefs.current[TColor.White] = -1;
+    decrement();
+  }, [sideToMove, decrement]);
+
+  return (
+    <div id="timer">
+      <span id="black-time" className={sideToMove === TColor.Black ? 'text-primary-darker-1' : 'text-secondary'}>
+        {formatSecondsToMinutes(timers[TColor.Black])}
+      </span>
+      <hr />
+      <span id="white-time" className={sideToMove === TColor.White ? 'text-primary-darker-1' : 'text-secondary'}>
+        {formatSecondsToMinutes(timers[TColor.White])}
+      </span>
+    </div>
+  );
+};
+
+export default Timer;

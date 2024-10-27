@@ -229,6 +229,9 @@ impl Board {
         self.half_move_clock = 0;
         self.moves_history = Vec::new();
         self.zobrist = Zobrist::new();
+
+        self.black_captures = Vec::with_capacity(16);
+        self.white_captures = Vec::with_capacity(16);
     }
 
     pub fn set_winner(&mut self, winner: String) { self.winner = winner; }
