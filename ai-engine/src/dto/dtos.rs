@@ -32,7 +32,7 @@ pub struct MoveDTO {
     pub flags: u16,
     pub from: usize,
     pub to: usize,
-    // pub promotion_flag: u16
+    pub notation: String
 }
 
 impl MoveDTO {
@@ -41,7 +41,7 @@ impl MoveDTO {
             flags: _move.get_flags(),
             from: _move.get_from(),
             to: _move.get_to(),
-            // promotion_flag: _move.get
+            notation: _move.to_algebraic_notation()
         }
     }
 }

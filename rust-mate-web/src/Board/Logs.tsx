@@ -1,21 +1,78 @@
 import React from 'react'
-import { AIResponse, TBoard } from './types'
+import { AIResponse, TBoard, TMove } from './types'
 
 import './logs.scss';
 
 interface IProps {
-    aiResponse: AIResponse | undefined,
     board: TBoard,
-    isWaitingForAI: boolean
 }
 
-const Logs: React.FC<IProps> = ({aiResponse, board, isWaitingForAI}) => {
+const getMoves = (moves: TMove[]) => {
+  const elements = []
+
+  let i;
+  for(i = 0; i < moves.length; i++) {
+    if(i + 1 == moves.length) {
+      break
+    }
+
+    elements.push(
+      <li key={i}>
+        <span className='index text-primary'>{(i / 2) + 1}.</span>
+        <div>
+          <button className='move-btn'>{moves[i].notation}</button>
+          <button className={'move-btn ' + (i + 1 == moves.length - 1 ? 'selected' : '')}>{moves[i+1].notation}</button>
+        </div>
+      </li>
+    )
+
+    i++;
+  }
+
+  if (moves.length % 2 !== 0) {
+    elements.push(
+      <li key={i}>
+        <span className='index text-primary'>{(i / 2) + 1}.</span>
+        <div>
+          <button className='move-btn selected'>{moves[i].notation}</button>
+        </div>
+      </li>
+    )
+  }
+
+  return elements;
+}
+
+const Logs: React.FC<IProps> = ({board}) => {
   return (
     <div id='logs'>
         <ul id="moves">
-          <li><button className='move-btn'>e5</button></li>
-          <li><button className='move-btn selected'>♞xe5</button></li>
-          <li><button className='move-btn'>♖e5</button></li>
+          <h3>Moves History</h3>
+          {
+            getMoves(board.movesHistory)
+          }
+
+          {/* <li>
+              <span className='index text-primary'>1.</span>
+            <div>
+              <button className='move-btn'>e5</button>
+              <button className='move-btn'>e5</button>
+            </div>
+          </li>
+          <li>
+              <span className='index text-primary'>2.</span>
+            <div>
+              <button className='move-btn selected'>♞xe5</button>
+              <button className='move-btn selected'>♞xe5</button>
+            </div>
+          </li>
+          <li>
+              <span className='index text-primary'>3.</span>
+            <div>
+              <button className='move-btn'>♖e5</button>
+              <button className='move-btn'>♖e5</button>
+            </div>
+          </li> */}
         </ul>
 
         <div id="move-infos">

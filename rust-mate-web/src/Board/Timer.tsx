@@ -39,8 +39,8 @@ const Timer: React.FC<IProps> = ({ sideToMove, timeRunning, setTimeIsUp }) => {
     const color = sideToMove;
     const newValue = timers[color] - 1;
 
-    if (newValue === 0) {
-      timeoutRefs.current[color] = -1;
+    if (newValue === -1) {
+      clearTimeout(timeoutRefs.current[color]);
       setTimeIsUp(true);
     } else {
       handleTimeout(color, newValue);
@@ -52,8 +52,8 @@ const Timer: React.FC<IProps> = ({ sideToMove, timeRunning, setTimeIsUp }) => {
   }, [decrement]);
 
   useEffect(() => {
-    timeoutRefs.current[TColor.Black] = -1;
-    timeoutRefs.current[TColor.White] = -1;
+    clearTimeout(timeoutRefs.current[TColor.Black]);
+    clearTimeout(timeoutRefs.current[TColor.White]);
     decrement();
   }, [sideToMove, decrement]);
 

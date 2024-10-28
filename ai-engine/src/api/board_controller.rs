@@ -104,7 +104,8 @@ pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mu
         "winner": board.get_winner(),
         "zobrit": zobrist,
         "pieces": pieces,
-        "whiteKingInCheck": false
+        "whiteKingInCheck": false,
+        "movesHistory": board.get_moves_history().iter().map(|_move| MoveDTO::from_move(_move)).collect::<Vec<MoveDTO>>()
     }))
 }
 

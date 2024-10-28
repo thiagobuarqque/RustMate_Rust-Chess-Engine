@@ -43,9 +43,9 @@ const Cell: React.FC<IProps> = ({
 			data-pos={position}
 			onClick={(e) => onMovePiece(e.currentTarget, position)}
 		>
-			<span className="cell-index">{position}</span>
-			{column === 7 && <span className={`row-index ${(row) % 2 === 0 ? "white" : ""}`}>{row + 1}</span>}
-			{row === 0 && <span className={`column-index ${(column ) % 2 !== 0 ? "white" : ""}`}>{COLUMNS[7 - column]}</span>}
+			{/* <span className="cell-index">{position}</span> */}
+			{column === 7 && <span className={`row-index ${(row) % 2 !== 0 ? "white" : ""}`}>{row + 1}</span>}
+			{row === 0 && <span className={`column-index ${(column ) % 2 === 0 ? "white" : ""}`}>{COLUMNS[7 - column]}</span>}
 			{piece && piece.fen !== EMPTY_FEN ? (
 				<BoardPiece
 					blackKingInCheck={board.blackKingInCheck}

@@ -2,7 +2,7 @@ use core::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use crate::game_bit_board::enums::{Color, PieceType};
+use crate::game_bit_board::{enums::{Color, PieceType}, utils::utils::get_piece_letter};
 
 use super::move_contants::*;
 
@@ -31,7 +31,7 @@ use super::move_contants::*;
 /// | 1110 | Rook Promo Capture     |
 /// | 1111 | Queen Promo Capture    |
 /// ```
-#[derive(Copy, Debug, Clone, Deserialize, Serialize)]
+#[derive(Copy, Debug, Clone, Deserialize, PartialEq, Serialize)]
 pub struct Move {
     _move: u16,
     en_passant_bb_position: u64,
@@ -49,27 +49,9 @@ pub struct Move {
     pub zobrist_hash: u64,
 }
 
-impl PartialEq for Move {
-    fn eq(&self, other: &Self) -> bool {
-        self._move == other._move
-            && self.en_passant_bb_position == other.en_passant_bb_position
-            && self.en_passant_bb_piece_square == other.en_passant_bb_piece_square
-            && self.color == other.color
-            && self.piece_type == other.piece_type
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        self._move != other._move
-            || self.en_passant_bb_position != other.en_passant_bb_position
-            || self.en_passant_bb_piece_square != other.en_passant_bb_piece_square
-            || self.color != other.color
-            || self.piece_type != other.piece_type
-    }
-}
-
 impl fmt::Display for Move {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_algebraic_notation())
+        write!(f, "{}", self.to_simple_notation())
     }
 }
 
@@ -188,51 +170,67 @@ impl Move {
 
     pub fn get_en_passant_bb_piece_square(&self) -> u64 { self.en_passant_bb_piece_square }
 
-    pub fn to_algebraic_notation(&self) -> String {
+    pub fn to_simple_notation(&self) -> String {
         let from_square = self.decode_square((self._move >> 6) & 0x3F);
         let to_square = self.decode_square(self._move & 0x3F);
         let move_flags = (self._move >> 12) & 0xF;
 
-        // Handle castling
-        // if move_flags == KING_CASTLE {
-        //     return "O-O".to_string();
-        // } else if move_flags == QUEEN_CASTLE {
-        //     return "O-O-O".to_string();
-        // }
-
-        // Piece type
-        // let piece = match self.piece_type {
-        //     PieceType::Pawn => "".to_string(),
-        //     _ => get_piece_symbol(self.color, self.piece_type),
-        // };
-
-        // Captures
-        // let capture_symbol = if move_flags == CAPTURE || move_flags >=
-        // KNIGHT_PROMOTION_CAPTURE {     "x"
-        // } else {
-        //     ""
-        // };
-
-        // Promotion
         let promotion = if move_flags >= KNIGHT_PROMOTION {
             format!("{}", self.promotion_piece(move_flags))
         } else {
             "".to_string()
         };
 
+        format!("{}{}{}", from_square, to_square, promotion)
+
+    }
+
+    pub fn to_algebraic_notation(&self) -> String {
+        let from_square = self.decode_square((self._move >> 6) & 0x3F);
+        let to_square = self.decode_square(self._move & 0x3F);
+        let move_flags = (self._move >> 12) & 0xF;
+
+        // Handle castling
+        if move_flags == KING_CASTLE {
+            return "O-O".to_string();
+        } else if move_flags == QUEEN_CASTLE {
+            return "O-O-O".to_string();
+        }
+
+        // Piece type
+        let piece = match self.piece_type {
+            PieceType::Pawn => "".to_string(),
+            _ => get_piece_letter(self.color, &self.piece_type),
+        };
+
+        // Captures
+        let capture_symbol = if move_flags == CAPTURE || move_flags >= KNIGHT_PROMOTION_CAPTURE {
+            "x"
+        } else {
+            ""
+        };
+
+        // Promotion
+        let mut promotion = if move_flags >= KNIGHT_PROMOTION {
+            format!("{}", self.promotion_piece(move_flags))
+        } else {
+            "".to_string()
+        };
+
+        if self.color.is_white() {
+            promotion = promotion.to_uppercase();
+        }
+
         // Handle pawn capture notation
-        // let pawn_file = if self.piece_type == PieceType::Pawn && capture_symbol ==
-        // "x" {     self.file_of(from_square.clone())
+        // let pawn_file = if self.piece_type == PieceType::Pawn && capture_symbol == "x" {
+        //     self.file_of(from_square.clone())
         // } else {
         //     "".to_string()
         // };
 
-        format!("{}{}{}", from_square, to_square, promotion)
-
-        // format!(
-        //     "{}{}{}{}{}",
-        //     pawn_file, from_square, capture_symbol, to_square, promotion
-        // )
+        format!(
+            "{piece}{from_square}{capture_symbol}{to_square}{promotion}"
+        )
     }
 
     fn decode_square(&self, square_index: u16) -> String {

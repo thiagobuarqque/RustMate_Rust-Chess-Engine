@@ -242,6 +242,10 @@ impl Board {
         &self.black_captures
     }
 
+    pub fn get_moves_history(&self) -> &Vec<Move> {
+        &self.moves_history
+    }
+
     pub fn get_white_captures(&self) -> &Vec<PieceType> {
         &self.white_captures
     }

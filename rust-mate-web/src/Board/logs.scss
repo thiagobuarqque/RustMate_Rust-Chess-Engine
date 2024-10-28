@@ -1,8 +1,10 @@
 #logs {
     width: 420px;
-    min-height: 195px;
-    max-height: 100%;
+    height: 720px;
     // background-color: hsl(250 17% 16% / 1);
+    display: flex;
+    align-items: start;
+    flex-direction: column;
     background-color: #F3F6F9;
 
     border-radius: 15px;
@@ -12,9 +14,8 @@
     font-family: 'Inter';
 
     #moves {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
+      width: 100%;
+      height: 100%;
       list-style-type: none;
       column-gap: 8px;
       margin-block-start: 0;
@@ -25,9 +26,39 @@
       margin-bottom: 8px;
       border-bottom: 1px solid var(--text-secondary);
 
+      > h3 {
+        margin: 0 0 8px 0;
+        padding-bottom: 8px;
+
+        color: var(--primary-darker-1);
+
+        border-bottom: 1px solid var(--text-secondary);
+      }
+
       li {
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+
+        &:nth-child(even) {
+          background-color: rgba(183, 169, 226, 0.1);
+        }
         
+        .index {
+          display: inline;
+          font-size: 14px;
+          font-weight: bold;
+          margin-right: 16px;
+        }
+        > div {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: 1fr;
+          grid-column-gap: 0px;
+          grid-row-gap: 0px;
+        }
+
         button {
           font-weight: bold;
           border: none;
@@ -37,6 +68,13 @@
           border-top-left-radius: 3px;
           border-top-right-radius: 3px;
           font-size: 16px;
+          width: fit-content;
+
+          padding: 0;
+
+          &:first {
+            margin-right: 72px;
+          }
 
           &.selected {
             color: var(--primary-darker-1);

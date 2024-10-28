@@ -42,7 +42,7 @@ fn _count_moves(
         num_positions += moves_count;
 
         if track_moves {
-            println!("{}: {}", _move.to_algebraic_notation(), moves_count);
+            println!("{}: {}", _move.to_simple_notation(), moves_count);
         }
 
         board.unmake_last_move();

@@ -17,6 +17,7 @@ export type TBoard = {
   siteToMove: TColor;
   winner: "-" | "Black" | "White" | "Draw";
   zobrit: number;
+  movesHistory: TMove[]
 };
 
 export type TPiece = {
@@ -30,7 +31,8 @@ export type TPiece = {
 export type TMove = {
     flags: number,
     from: number,
-    to: number
+    to: number,
+    notation: string
 }
 
 export enum TColor {
