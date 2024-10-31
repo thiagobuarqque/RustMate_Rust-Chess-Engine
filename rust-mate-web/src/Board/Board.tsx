@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { PIECE_ICONS } from "./BoardPiece";
-import { AIResponse, TBoard, TMove, TColor, TPieceType, TPiece } from "./types";
+import { AIResponse, TBoard, TMove, TPieceType, TPiece } from "./types";
 
 import captureAudio from "../assets/sound/capture.mp3";
 import moveAudio from "../assets/sound/move-self.mp3";
@@ -9,9 +9,10 @@ import moveAudio from "../assets/sound/move-self.mp3";
 import http, { postWithBody } from "../http-common";
 
 import "./board.scss";
-import { CAPTURE, INITIAL_FEN, TEN_MINUTES_IN_SECONDS } from "./constants";
+import { CAPTURE, INITIAL_FEN } from "./constants";
 
 import Cell from "./Cell";
+import Confetti from "../utils/confetti";
 
 const playMoveAudio = (capture: boolean) => {
 	let audio;
@@ -104,14 +105,14 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 		});
 	};
 
-	const onMovePiece = (cell: HTMLDivElement, cellPosition: number) => {
-		if (selectedPiecePos === INVALID_POSITION || cellPosition == selectedPiecePos) {
+	const onMovePiece = (position: number) => {
+		if (selectedPiecePos === INVALID_POSITION || position == selectedPiecePos) {
       		return;
 		}
 
 		let moves = board.pieces[selectedPiecePos].moves;
 
-		moves = moves.filter((move) => move.to === cellPosition)
+		moves = moves.filter((move) => move.to === position)
 
 		if (!moves.length) {
 			console.log("Could not find move");
@@ -119,7 +120,6 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 			return;
 		}
 
-		// TODO: Add the option to choose the promotion
 		if (moves.length > 1 && promotionPosition === INVALID_POSITION) {
 			setPromotionPosition(moves[0].to);
 		} else if (promotionPosition === INVALID_POSITION) {
@@ -193,16 +193,22 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 		postWithBody<TBoard>("/board/load/fen", {fen}, setBoard);
 	}
 
+	useEffect(() => {
+		if(board.winner !== '-' && board.winner !== 'Draw') {
+			new Confetti();
+		}
+	}, [board.winner])
+
 	return (
 		<>
 			<div id="board">
-				<div id="winner-modal" className={`modal-background ${board.winner === "-" ? 'opacity-0 no-point-events' : ''}`}>
-					<div id="content">
-						<h1>{board.winner}{board.winner !== 'Draw' ? ' won!' : ''}</h1>
-						<button className="play-as-btn primary" onClick={() => loadFen(INITIAL_FEN)}>Play Again</button>
-						{/* <button className="play-as-btn primary">Play as White</button> */}
-					</div>
+				<div id="winner-modal" className={`${board.winner === "-" ? '' : 'slide-top'}`}>
+					<h1>{board.winner}{board.winner !== 'Draw' ? ' won!' : ''}</h1>
+					<button className="play-as-btn primary" onClick={() => loadFen(INITIAL_FEN)}>Play Again</button>
+					{/* <button className="play-as-btn primary">Play as White</button> */}
 				</div>
+				{/* <div id="winner-modal" className={`${board.winner === "-" ? 'opacity-0 no-point-events' : ''}`}>
+				</div> */}
 				<div id="white-captures" className="captures">
 					{board.whiteCaptures.map((piece_fen, i) => (
 						<img key={i} className="captured_piece" src={PIECE_ICONS[piece_fen]} alt={piece_fen} />

@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import Board from './Board/Board'
 import { INITIAL_FEN } from './Board/constants';
 import Logs from './Board/Logs'
-import Timer from './Board/Timer'
 import { TBoard, TColor } from './Board/types'
-import http, { postWithBody } from "./http-common";
+import http from "./http-common";
 
 function App() {
   const [board, setBoard] = useState<TBoard>({
@@ -18,11 +17,12 @@ function App() {
 		whiteKingInCheck: false,
 		siteToMove: TColor.White,
 		winner: "-",
+		movesHistory: [],
 		zobrit: 0,
 	});
 
   const [loading, setLoading] = useState(true);
-  const [timeIsUp, setTimeIsUp] = useState(false);
+//   const [timeIsUp, setTimeIsUp] = useState(false);
 
   const fetchBoard = async () => {
 		return http
@@ -46,9 +46,9 @@ function App() {
 
   return (
     <div id="content-wrapper">
-      <Timer sideToMove={board.siteToMove} timeRunning={board.winner === '-' && !timeIsUp} setTimeIsUp={setTimeIsUp} />
+      {/* <Timer sideToMove={board.siteToMove} timeRunning={board.winner === '-' && !timeIsUp} setTimeIsUp={setTimeIsUp} /> */}
       <Board board={board} setBoard={setBoard}/>
-      <Logs aiResponse={undefined} board={board} isWaitingForAI={false} />
+      <Logs board={board} />
     </div>
   )
 }

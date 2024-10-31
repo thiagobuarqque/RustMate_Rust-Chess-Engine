@@ -46,11 +46,12 @@ div#board {
     &:nth-child(even) {
       .cell:nth-child(even) {
         background-color: var(--thirdary);
-        
+
         .move-dot {
           background-color: var(--secondary);
         }
       }
+
       .cell:nth-child(odd) {
         background-color: var(--primary);
 
@@ -68,6 +69,7 @@ div#board {
           background-color: var(--secondary);
         }
       }
+
       .cell:nth-child(even) {
         background-color: var(--primary);
 
@@ -113,13 +115,12 @@ div#board {
       &.capture-receptor {
         // background-color: rgba(255, 96, 96, 0.4) !important;
         background: rgb(242, 117, 117);
-        background: radial-gradient(
-          circle,
-          rgba(252,70,107,0) 0%,
-          rgba(252,70,107,0) 48%,
-          rgb(242, 117, 117) 51%,
-          rgba(252,70,107,0) 55%,
-          rgba(252,70,107,0) 100%);
+        background: radial-gradient(circle,
+            rgba(252, 70, 107, 0) 0%,
+            rgba(252, 70, 107, 0) 48%,
+            rgb(242, 117, 117) 51%,
+            rgba(252, 70, 107, 0) 55%,
+            rgba(252, 70, 107, 0) 100%);
       }
 
       &.selected {
@@ -164,6 +165,7 @@ div#board {
         pointer-events: none;
         color: var(--primary);
       }
+
       .row-index {
         top: 4px;
       }
@@ -204,7 +206,7 @@ div#board {
     }
   }
 
-  #zobrit{
+  #zobrit {
     font-size: 32px;
     text-align: center;
     position: absolute;
@@ -262,8 +264,8 @@ div#board {
   display: flex;
   align-items: center;
   column-gap: 16px;
-  
-  
+
+
   button {
     background-color: #fff;
 
@@ -282,35 +284,67 @@ div#board {
 }
 
 #winner-modal {
+  z-index: 9999;
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  transform: translateY(100%);
+
+  width: 300px;
+
+  background-color: var(--thirdary);
+
+  border-radius: 15px;
+
+  padding: 1rem;
+
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  row-gap: 16px;
 
-  #content {
-    width: 300px;
-    // height: 250px;
+  box-shadow: rgba(51, 32, 56, 0.15) 0px 4px 16px 0px,
+  rgba(51, 32, 56, 0.15) 0px 8px 32px 0px;
 
-    background-color: var(--thirdary);
+  &.slide-top {
+    -webkit-animation: slide-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;
+    animation: slide-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;
+  }
 
-    border-radius: 15px;
-
-    padding: 1rem;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    row-gap: 16px;
-
-    h1 {
-      display: block;
-      text-align: center;
-
-      margin: 0 0 8px 0;
+  @-webkit-keyframes slide-top {
+    0% {
+      -webkit-transform: translateY(100%);
+      transform: translateY(100%);
     }
 
-    button {
-      width: 100%;
-      padding: 1rem;
+    100% {
+      -webkit-transform: translateY(0%);
+      transform: translateY(0%);
     }
   }
+
+  @keyframes slide-top {
+    0% {
+      -webkit-transform: translateY(100%);
+      transform: translateY(100%);
+    }
+
+    100% {
+      -webkit-transform: translateY(0%);
+      transform: translateY(0%);
+    }
+  }
+
+  h1 {
+    display: block;
+    text-align: center;
+
+    margin: 0 0 8px 0;
+  }
+
+  button {
+    width: 100%;
+    padding: 1rem;
+  }
+
 }

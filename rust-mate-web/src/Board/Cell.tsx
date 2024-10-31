@@ -7,7 +7,7 @@ interface IProps {
     board: TBoard;
     column: number;
     onClickPiece: (piece: TPiece) => void;
-	  onMovePiece: (cell: HTMLDivElement, position: number) => void;
+	onMovePiece: (position: number) => void;
     piece: TPiece | undefined
     position: number;
     row: number;
@@ -41,7 +41,7 @@ const Cell: React.FC<IProps> = ({
 			key={column}
 			className={getCellClasses()}
 			data-pos={position}
-			onClick={(e) => onMovePiece(e.currentTarget, position)}
+			onClick={() => onMovePiece(position)}
 		>
 			{/* <span className="cell-index">{position}</span> */}
 			{column === 7 && <span className={`row-index ${(row) % 2 !== 0 ? "white" : ""}`}>{row + 1}</span>}

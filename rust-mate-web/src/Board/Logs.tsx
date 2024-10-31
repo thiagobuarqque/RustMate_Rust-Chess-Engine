@@ -1,5 +1,5 @@
 import React from 'react'
-import { AIResponse, TBoard, TMove } from './types'
+import { TBoard, TMove } from './types'
 
 import './logs.scss';
 
@@ -46,8 +46,8 @@ const getMoves = (moves: TMove[]) => {
 const Logs: React.FC<IProps> = ({board}) => {
   return (
     <div id='logs'>
+        <h3>Moves History</h3>
         <ul id="moves">
-          <h3>Moves History</h3>
           {
             getMoves(board.movesHistory)
           }
