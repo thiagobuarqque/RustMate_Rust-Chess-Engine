@@ -142,3 +142,10 @@ pub const QUEEN_SQUARE_TABLE: [f32; 64] = [
 ];
 
 pub const END_GAME_PIECES_THRESHOLD: f32 = 4.0;
+
+pub const BISHOP_WORTH: f32 = 300.0;
+pub const KING_WORTH: f32 = 20000.0;
+pub const KNIGHT_WORTH: f32 = 300.0;
+pub const PAWN_WORTH: f32 = 100.0;
+pub const QUEEN_WORTH: f32 = 900.0;
+pub const ROOK_WORTH: f32 = 500.0;

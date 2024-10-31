@@ -6,7 +6,7 @@ import { AIResponse, TBoard, TMove, TPieceType, TPiece } from "./types";
 import captureAudio from "../assets/sound/capture.mp3";
 import moveAudio from "../assets/sound/move-self.mp3";
 
-import http, { postWithBody } from "../http-common";
+import http, { get, postWithBody } from "../http-common";
 
 import "./board.scss";
 import { CAPTURE, INITIAL_FEN } from "./constants";
@@ -162,11 +162,21 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 		setPromotionPosition(INVALID_POSITION);
 	}
 
+	const getAiMove = () => {
+		// setIsWaitingForAI(true);
+
+		get<AIResponse>("/ai/move", () => {
+			get<TBoard>("/board", setBoard);
+		});
+	};
+
 	const makeMove = (move: TMove) => {
 		http.post<TBoard>("/board/move/piece", move)
 			.then((response) => response.data)
 			.then((data) => {
 				setBoard(data);
+
+				getAiMove()
 			})
 			.catch((err) => {
 				console.error(err);

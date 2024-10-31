@@ -3,10 +3,10 @@ import Board from './Board/Board'
 import { INITIAL_FEN } from './Board/constants';
 import Logs from './Board/Logs'
 import { TBoard, TColor } from './Board/types'
-import http from "./http-common";
+import http, { get } from "./http-common";
 
 function App() {
-  const [board, setBoard] = useState<TBoard>({
+	const [board, setBoard] = useState<TBoard>({
 		blackCaptures: [],
 		blackKingInCheck: false,
 		enPassant: 0,
@@ -21,36 +21,33 @@ function App() {
 		zobrit: 0,
 	});
 
-  const [loading, setLoading] = useState(true);
-//   const [timeIsUp, setTimeIsUp] = useState(false);
+	const [loading, setLoading] = useState(true);
+	//   const [timeIsUp, setTimeIsUp] = useState(false);
 
-  const fetchBoard = async () => {
-		return http
-			.get<TBoard>("/board")
-			.then((response) => response.data)
-			.then((data) => {
-				setBoard(data);
-        setLoading(false);
-			});
+	const fetchBoard = () => {
+		get<TBoard>("/board", (board) => {
+			setBoard(board);
+			setLoading(false);
+		});
 	};
 
-  useEffect(() => {
+	useEffect(() => {
 		fetchBoard();
 	}, []);
 
-  if (loading) {
-    return <div className='modal-background' style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-      <h1 style={{color: '#fff', fontWeight: 'bold'}}>RustMate</h1>
-    </div>
-  }
+	if (loading) {
+		return <div className='modal-background' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+			<h1 style={{ color: '#fff', fontWeight: 'bold' }}>RustMate</h1>
+		</div>
+	}
 
-  return (
-    <div id="content-wrapper">
-      {/* <Timer sideToMove={board.siteToMove} timeRunning={board.winner === '-' && !timeIsUp} setTimeIsUp={setTimeIsUp} /> */}
-      <Board board={board} setBoard={setBoard}/>
-      <Logs board={board} />
-    </div>
-  )
+	return (
+		<div id="content-wrapper">
+			{/* <Timer sideToMove={board.siteToMove} timeRunning={board.winner === '-' && !timeIsUp} setTimeIsUp={setTimeIsUp} /> */}
+			<Board board={board} setBoard={setBoard} />
+			<Logs board={board} />
+		</div>
+	)
 }
 
 export default App

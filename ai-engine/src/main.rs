@@ -3,7 +3,7 @@
 use std::{io, num::ParseIntError, sync::Mutex};
 
 use actix_cors::Cors;
-use api::board_controller;
+use api::{ai_controller, board_controller};
 use game_bit_board::{
     _move::_move::Move,
     board::Board,
@@ -16,6 +16,7 @@ mod dto;
 mod game_bit_board;
 mod api;
 mod global_state;
+mod ai;
 
 pub fn get_input(prompt: &str) -> String {
     println!("{}", prompt);
@@ -125,7 +126,7 @@ async fn main() -> std::io::Result<()> {
     println!("Server started successfully 🚀!");
 
     // let state = Data::new(Mutex::new(GlobalState::new()));
-    let board = Data::new(Mutex::new(Board::from_fen("4kbnr/PPP1P1PP/3PP3/8/8/8/8/RNBQKBNR w KQk - 0 1")));
+    let board = Data::new(Mutex::new(Board::new()));
     let move_generator = Data::new(Mutex::new(MoveGenerator::new()));
 
     HttpServer::new(move || {
@@ -147,8 +148,7 @@ async fn main() -> std::io::Result<()> {
             .service(board_controller::get_move_generation_count)
             .service(board_controller::load_fen)
             .service(board_controller::move_piece)
-            // .service(board_controller::set_ai_depth)
-            // .service(board_controller::ai_move)
+            .service(ai_controller::ai_move)
             // .configure(config)
             .wrap(cors)
             .wrap(Logger::default())

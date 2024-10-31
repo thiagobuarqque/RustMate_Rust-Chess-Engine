@@ -288,6 +288,10 @@ impl Board {
 
     pub fn get_empty_squares(&self) -> u64 { !self.get_occupied_squares() }
 
+    pub fn get_king_position(&self, color: Color) -> usize {
+        pop_lsb(&mut (self.get_piece_positions(color, PieceType::King))) as usize
+    }
+
     pub fn place_piece(&mut self, color: Color, piece_type: PieceType, bb_position: u64) {
         self.bitboards[get_color_index(color)] |= bb_position;
 
@@ -344,6 +348,14 @@ impl Board {
         }
 
         self.moves_history.remove(self.moves_history.len() - 1);
+
+        if _move.is_capture() {
+            if _move.color.is_black() {
+                self.black_captures.remove(self.black_captures.len() - 1);
+            } else {
+                self.white_captures.remove(self.white_captures.len() - 1);
+            }
+        }
     }
 
     pub fn move_piece(&mut self, _move: &mut Move) {

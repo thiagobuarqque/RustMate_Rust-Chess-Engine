@@ -18,4 +18,14 @@ export function postWithBody<T = any>(
       .catch(onError)
 }
 
+export function get<T = any>(
+  endpoint: string,
+  onSuccess: (data: T) => void,
+  onError?: (reason: any) => void): void{
+
+    https.get<T>(endpoint)
+      .then(response => onSuccess(response.data))
+      .catch(onError)
+}
+
 export default https;

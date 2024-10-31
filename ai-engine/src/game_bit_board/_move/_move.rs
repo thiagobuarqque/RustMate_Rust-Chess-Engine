@@ -36,8 +36,10 @@ pub struct Move {
     _move: u16,
     en_passant_bb_position: u64,
     en_passant_bb_piece_square: u64,
-    color: Color,
-    piece_type: PieceType,
+    pub color: Color,
+    pub piece_type: PieceType,
+    
+    pub move_worth: f32,
 
     // Board state before making this move
     pub castling_rights: u8,
@@ -103,6 +105,7 @@ impl Move {
             en_passant_bb_piece_square: 0,
             color,
             piece_type,
+            move_worth: 0.0,
 
             castling_rights: 0,
             bitboards: [0; 8],
@@ -114,9 +117,13 @@ impl Move {
         }
     }
 
-    pub fn get_color(&self) -> Color { self.color }
+    pub fn sum_to_move_worth(&mut self, value: f32) {
+        self.move_worth += value
+    }
 
-    pub fn get_piece_type(&self) -> PieceType { self.piece_type }
+    pub fn get_move_worth(&mut self) -> f32 {
+        self.move_worth
+    }
 
     pub fn as_u64(&self) -> u64 { self._move as u64 }
 
@@ -126,37 +133,41 @@ impl Move {
 
     pub fn get_to(&self) -> usize { (self._move & 0x3f) as usize }
 
-    pub fn is_normal(&self) -> bool { (self._move >> 12) == NORMAL }
+    pub fn is_normal(&self) -> bool { self.get_flags() == NORMAL }
 
-    pub fn is_double_pawn_push(&self) -> bool { (self._move >> 12) == DOUBLE_PAWN_PUSH }
+    pub fn is_double_pawn_push(&self) -> bool { self.get_flags() == DOUBLE_PAWN_PUSH }
 
-    pub fn is_king_castle(&self) -> bool { (self._move >> 12) == KING_CASTLE }
+    pub fn is_king_castle(&self) -> bool { self.get_flags() == KING_CASTLE }
 
-    pub fn is_queen_castle(&self) -> bool { (self._move >> 12) == QUEEN_CASTLE }
+    pub fn is_queen_castle(&self) -> bool { self.get_flags() == QUEEN_CASTLE }
 
-    pub fn is_capture(&self) -> bool { (self._move >> 12) == CAPTURE }
+    pub fn is_capture(&self) -> bool { 
+        let flags = self.get_flags();
 
-    pub fn is_en_passant(&self) -> bool { (self._move >> 12) == EN_PASSANT }
+        (flags == CAPTURE) || (flags == EN_PASSANT) || self.is_promo_capture()
+    }
 
-    pub fn is_knight_promotion(&self) -> bool { (self._move >> 12) == KNIGHT_PROMOTION }
+    pub fn is_en_passant(&self) -> bool { self.get_flags() == EN_PASSANT }
 
-    pub fn is_bishop_promotion(&self) -> bool { (self._move >> 12) == BISHOP_PROMOTION }
+    pub fn is_knight_promotion(&self) -> bool { self.get_flags() == KNIGHT_PROMOTION }
 
-    pub fn is_rook_promotion(&self) -> bool { (self._move >> 12) == ROOK_PROMOTION }
+    pub fn is_bishop_promotion(&self) -> bool { self.get_flags() == BISHOP_PROMOTION }
 
-    pub fn is_queen_promotion(&self) -> bool { (self._move >> 12) == QUEEN_PROMOTION }
+    pub fn is_rook_promotion(&self) -> bool { self.get_flags() == ROOK_PROMOTION }
 
-    pub fn is_knight_promo_capture(&self) -> bool { (self._move >> 12) == KNIGHT_PROMOTION_CAPTURE }
+    pub fn is_queen_promotion(&self) -> bool { self.get_flags() == QUEEN_PROMOTION }
 
-    pub fn is_bishop_promo_capture(&self) -> bool { (self._move >> 12) == BISHOP_PROMOTION_CAPTURE }
+    pub fn is_knight_promo_capture(&self) -> bool { self.get_flags() == KNIGHT_PROMOTION_CAPTURE }
 
-    pub fn is_rook_promo_capture(&self) -> bool { (self._move >> 12) == ROOK_PROMOTION_CAPTURE }
+    pub fn is_bishop_promo_capture(&self) -> bool { self.get_flags() == BISHOP_PROMOTION_CAPTURE }
 
-    pub fn is_queen_promo_capture(&self) -> bool { (self._move >> 12) == QUEEN_PROMOTION_CAPTURE }
+    pub fn is_rook_promo_capture(&self) -> bool { self.get_flags() == ROOK_PROMOTION_CAPTURE }
 
-    pub fn is_promo_capture(&self) -> bool { (self._move >> 12) >= KNIGHT_PROMOTION_CAPTURE }
+    pub fn is_queen_promo_capture(&self) -> bool { self.get_flags() == QUEEN_PROMOTION_CAPTURE }
 
-    pub fn is_promotion(&self) -> bool { (self._move >> 12) >= KNIGHT_PROMOTION }
+    pub fn is_promo_capture(&self) -> bool { self.get_flags() >= KNIGHT_PROMOTION_CAPTURE }
+
+    pub fn is_promotion(&self) -> bool { self.get_flags() >= KNIGHT_PROMOTION }
 
     pub fn set_en_passant_bb_position(&mut self, position: u64) {
         self.en_passant_bb_position = position
@@ -173,10 +184,10 @@ impl Move {
     pub fn to_simple_notation(&self) -> String {
         let from_square = self.decode_square((self._move >> 6) & 0x3F);
         let to_square = self.decode_square(self._move & 0x3F);
-        let move_flags = (self._move >> 12) & 0xF;
+        let move_flags = self.get_flags() & 0xF;
 
         let promotion = if move_flags >= KNIGHT_PROMOTION {
-            format!("{}", self.promotion_piece(move_flags))
+            format!("{}", self.promotion_piece_letter(move_flags))
         } else {
             "".to_string()
         };
@@ -188,7 +199,7 @@ impl Move {
     pub fn to_algebraic_notation(&self) -> String {
         let from_square = self.decode_square((self._move >> 6) & 0x3F);
         let to_square = self.decode_square(self._move & 0x3F);
-        let move_flags = (self._move >> 12) & 0xF;
+        let move_flags = self.get_flags() & 0xF;
 
         // Handle castling
         if move_flags == KING_CASTLE {
@@ -212,7 +223,7 @@ impl Move {
 
         // Promotion
         let mut promotion = if move_flags >= KNIGHT_PROMOTION {
-            format!("{}", self.promotion_piece(move_flags))
+            format!("{}", self.promotion_piece_letter(move_flags))
         } else {
             "".to_string()
         };
@@ -239,7 +250,7 @@ impl Move {
         format!("{}{}", file, rank)
     }
 
-    fn promotion_piece(&self, flags: u16) -> String {
+    fn promotion_piece_letter(&self, flags: u16) -> String {
         match flags {
             KNIGHT_PROMOTION | KNIGHT_PROMOTION_CAPTURE => "n".to_string(),
             BISHOP_PROMOTION | BISHOP_PROMOTION_CAPTURE => "b".to_string(),
@@ -250,8 +261,17 @@ impl Move {
     }
 
     fn file_of(&self, square: String) -> String {
-        square.chars().next().unwrap().to_string() // Extracts file (first
-                                                   // character)
+        square.chars().next().unwrap().to_string()
+    }
+
+    pub fn get_promotion_piece_type(&self) -> PieceType {
+        match self.get_flags() {
+            KNIGHT_PROMOTION | KNIGHT_PROMOTION_CAPTURE => PieceType::Knight,
+            BISHOP_PROMOTION | BISHOP_PROMOTION_CAPTURE => PieceType::Bishop,
+            ROOK_PROMOTION | ROOK_PROMOTION_CAPTURE => PieceType::Rook,
+            QUEEN_PROMOTION | QUEEN_PROMOTION_CAPTURE => PieceType::Queen,
+            _ => PieceType::Empty,
+        }
     }
 }
 

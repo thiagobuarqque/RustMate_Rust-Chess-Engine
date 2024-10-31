@@ -1,18 +1,18 @@
 use std::collections::HashMap;
 
-use crate::common::piece_move::PieceMove;
+use crate::game_bit_board::_move::_move::Move;
 
 pub struct TranspositionTableEntry {
     pub depth: u8,
     pub value: f32,
-    pub best_move: Option<PieceMove>,
+    pub best_move: Option<Move>,
 }
 
 impl TranspositionTableEntry {
     pub fn estimated_size(&self) -> usize {
         std::mem::size_of::<u8>()
             + std::mem::size_of::<f32>()
-            + std::mem::size_of::<Option<PieceMove>>()
+            + std::mem::size_of::<Option<Move>>()
     }
 }
 
