@@ -1,22 +1,37 @@
-use std::{sync::{Mutex, MutexGuard}, time::Instant};
+use std::{
+    sync::{Mutex, MutexGuard},
+    time::Instant,
+};
 
 use actix_web::{get, post, web, HttpResponse, Responder};
 
 use serde_json::{json, Value};
 
 use crate::{
-    dto::dtos::{FenDTO, MoveDTO, MovesCountDTO}, game_bit_board::{_move::{_move::Move, moves_counter::count_moves}, board::Board, enums::Color, move_generator::move_generator::MoveGenerator, utils::utils::get_piece_letter}
+    dto::dtos::{FenDTO, MoveDTO, MovesCountDTO},
+    game_bit_board::{
+        _move::{_move::Move, moves_counter::count_moves},
+        board::Board,
+        enums::Color,
+        move_generator::move_generator::MoveGenerator,
+        utils::utils::get_piece_letter,
+    },
 };
 
 #[get("/board")]
-pub async fn get_board(board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>) -> impl Responder {
-    get_board_response(&mut board.lock().unwrap(), &mut move_generator.lock().unwrap())
+pub async fn get_board(
+    board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>,
+) -> impl Responder {
+    get_board_response(
+        &mut board.lock().unwrap(),
+        &mut move_generator.lock().unwrap(),
+    )
 }
 
 #[post("/board/moves/count")]
 pub async fn get_move_generation_count(
-    piece_move: web::Json<MovesCountDTO>,
-    board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>
+    piece_move: web::Json<MovesCountDTO>, board: web::Data<Mutex<Board>>,
+    move_generator: web::Data<Mutex<MoveGenerator>>,
 ) -> impl Responder {
     let mut board = &mut board.lock().unwrap();
     let mut move_generator = &mut move_generator.lock().unwrap();
@@ -33,17 +48,19 @@ pub async fn get_move_generation_count(
 
 #[post("/board/move/piece")]
 pub async fn move_piece(
-    _move1: web::Json<MoveDTO>,
-    board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>
+    _move1: web::Json<MoveDTO>, board: web::Data<Mutex<Board>>,
+    move_generator: web::Data<Mutex<MoveGenerator>>,
 ) -> impl Responder {
     let board = &mut board.lock().unwrap();
 
-    let mut move_generator= move_generator.lock().unwrap();
+    let mut move_generator = move_generator.lock().unwrap();
 
-    let moves = move_generator
-        .get_moves(board).unwrap();
+    let moves = move_generator.get_moves(board).unwrap();
 
-    let moves = moves.iter().filter(|_move2| _move2.get_from() == _move1.from && _move2.get_to() == _move1.to).collect::<Vec<&Move>>();
+    let moves = moves
+        .iter()
+        .filter(|_move2| _move2.get_from() == _move1.from && _move2.get_to() == _move1.to)
+        .collect::<Vec<&Move>>();
 
     if moves.is_empty() {
         return HttpResponse::NotFound().json(json!({
@@ -63,7 +80,7 @@ pub async fn move_piece(
     }
 
     board.move_piece(&mut _move);
-    
+
     get_board_response(board, &mut move_generator)
 
     // HttpResponse::NotFound().json(json!({
@@ -73,8 +90,8 @@ pub async fn move_piece(
 
 #[post("/board/load/fen")]
 pub async fn load_fen(
-    fen_dto: web::Json<FenDTO>,
-    board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>
+    fen_dto: web::Json<FenDTO>, board: web::Data<Mutex<Board>>,
+    move_generator: web::Data<Mutex<MoveGenerator>>,
 ) -> impl Responder {
     let board = &mut board.lock().unwrap();
 
@@ -83,16 +100,26 @@ pub async fn load_fen(
     get_board_response(board, &mut move_generator.lock().unwrap())
 }
 
-pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mut MutexGuard<'_, MoveGenerator>) -> HttpResponse {
+pub fn get_board_response(
+    board: &mut MutexGuard<'_, Board>, move_generator: &mut MutexGuard<'_, MoveGenerator>,
+) -> HttpResponse {
     let fen = board.to_fen();
     let en_passant = board.get_en_passant_bb_position();
     let side_to_move = board.get_side_to_move();
     let zobrist = board.get_zobrist_hash();
-    
+
     let pieces: Vec<Value> = get_pieces(board, move_generator);
 
-    let black_captures = board.get_black_captures().iter().map(|capture| capture.to_fen(Color::White)).collect::<Vec<String>>();
-    let white_captures = board.get_white_captures().iter().map(|capture| capture.to_fen(Color::Black)).collect::<Vec<String>>();
+    let black_captures = board
+        .get_black_captures()
+        .iter()
+        .map(|capture| capture.to_fen(Color::White))
+        .collect::<Vec<String>>();
+    let white_captures = board
+        .get_white_captures()
+        .iter()
+        .map(|capture| capture.to_fen(Color::Black))
+        .collect::<Vec<String>>();
 
     HttpResponse::Ok().json(json!({
         "blackCaptures": black_captures,
@@ -111,10 +138,13 @@ pub fn get_board_response(board: &mut MutexGuard<'_, Board>, move_generator: &mu
 
 fn get_pieces(board: &mut Board, move_generator: &mut MoveGenerator) -> Vec<Value> {
     let moves: Vec<MoveDTO> = match move_generator.get_moves(board) {
-        Ok(moves) => moves.iter().map(|_move| MoveDTO::from_move(_move)).collect(),
-        Err(_) => Vec::new()
+        Ok(moves) => moves
+            .iter()
+            .map(|_move| MoveDTO::from_move(_move))
+            .collect(),
+        Err(_) => Vec::new(),
     };
-    
+
     let mut pieces: Vec<Value> = Vec::with_capacity(64);
 
     for square in 0..64 {

@@ -3,20 +3,18 @@
 use std::{io, num::ParseIntError, sync::Mutex};
 
 use actix_cors::Cors;
+use actix_web::{http::header, middleware::Logger, web::Data, App, HttpServer};
 use api::{ai_controller, board_controller};
 use game_bit_board::{
-    _move::_move::Move,
-    board::Board,
-    move_generator::move_generator::MoveGenerator,
+    _move::_move::Move, board::Board, move_generator::move_generator::MoveGenerator,
 };
-use actix_web::{http::header, middleware::Logger, web::Data, App, HttpServer};
 
+mod ai;
+mod api;
 mod constants;
 mod dto;
 mod game_bit_board;
-mod api;
 mod global_state;
-mod ai;
 
 pub fn get_input(prompt: &str) -> String {
     println!("{}", prompt);
@@ -71,7 +69,8 @@ fn get_piece_attacks(from: usize, moves: &Vec<Move>) -> Vec<usize> {
 //             }
 //         }
 
-//         let input: String = get_input("\nPiece square you want to move (e.g. a1): ");
+//         let input: String = get_input("\nPiece square you want to move (e.g.
+// a1): ");
 
 //         let from = algebraic_to_square(&input);
 
@@ -79,7 +78,8 @@ fn get_piece_attacks(from: usize, moves: &Vec<Move>) -> Vec<usize> {
 
 //         board.display_with_attacks(get_piece_attacks(from, &moves));
 
-//         let input: String = get_input("\nSquare you want to move to (e.g. a1): ");
+//         let input: String = get_input("\nSquare you want to move to (e.g.
+// a1): ");
 
 //         let mut _move;
 
@@ -104,8 +104,8 @@ fn get_piece_attacks(from: usize, moves: &Vec<Move>) -> Vec<usize> {
 
 //             _move = moves
 //                 .iter()
-//                 .find(|_move| _move.get_from() == from && _move.get_to() == to);
-//         }
+//                 .find(|_move| _move.get_from() == from && _move.get_to() ==
+// to);         }
 
 //         if _move.is_none() {
 //             println!("Invalid move!");

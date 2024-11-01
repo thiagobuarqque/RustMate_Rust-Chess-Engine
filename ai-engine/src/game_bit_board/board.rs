@@ -193,25 +193,25 @@ impl Board {
     }
 
     pub fn set_initial_bbs(&mut self) {
-      // Placement of pawns
-      self.bitboards[PAWNS_IDX] = 0x00FF00000000FF00;
-      self.bitboards[WHITE_IDX] = 0x000000000000FFFF;
-      self.bitboards[BLACK_IDX] = 0xFFFF000000000000;
-  
-      // Placement of rooks
-      self.bitboards[ROOKS_IDX] = 0x8100000000000081;
-  
-      // Placement of knights
-      self.bitboards[KNIGHTS_IDX] = 0x4200000000000042;
-  
-      // Placement of bishops
-      self.bitboards[BISHOPS_IDX] = 0x2400000000000024;
-  
-      // Placement of queens
-      self.bitboards[QUEENS_IDX] = 0x0800000000000008;
-  
-      // Placement of kings
-      self.bitboards[KINGS_IDX] = 0x1000000000000010;
+        // Placement of pawns
+        self.bitboards[PAWNS_IDX] = 0x00FF00000000FF00;
+        self.bitboards[WHITE_IDX] = 0x000000000000FFFF;
+        self.bitboards[BLACK_IDX] = 0xFFFF000000000000;
+
+        // Placement of rooks
+        self.bitboards[ROOKS_IDX] = 0x8100000000000081;
+
+        // Placement of knights
+        self.bitboards[KNIGHTS_IDX] = 0x4200000000000042;
+
+        // Placement of bishops
+        self.bitboards[BISHOPS_IDX] = 0x2400000000000024;
+
+        // Placement of queens
+        self.bitboards[QUEENS_IDX] = 0x0800000000000008;
+
+        // Placement of kings
+        self.bitboards[KINGS_IDX] = 0x1000000000000010;
     }
 
     pub fn reset(&mut self) {
@@ -238,17 +238,11 @@ impl Board {
 
     pub fn get_winner(&self) -> String { self.winner.clone() }
 
-    pub fn get_black_captures(&self) -> &Vec<PieceType> {
-        &self.black_captures
-    }
+    pub fn get_black_captures(&self) -> &Vec<PieceType> { &self.black_captures }
 
-    pub fn get_moves_history(&self) -> &Vec<Move> {
-        &self.moves_history
-    }
+    pub fn get_moves_history(&self) -> &Vec<Move> { &self.moves_history }
 
-    pub fn get_white_captures(&self) -> &Vec<PieceType> {
-        &self.white_captures
-    }
+    pub fn get_white_captures(&self) -> &Vec<PieceType> { &self.white_captures }
 
     pub fn is_game_finished(&self) -> bool { self.get_winner() != WINNER_NONE }
 

@@ -54,7 +54,5 @@ impl fmt::Display for PieceType {
 }
 
 impl PieceType {
-    pub fn to_fen(&self, color: Color) -> String {
-        get_piece_letter(color, self)
-    }
+    pub fn to_fen(&self, color: Color) -> String { get_piece_letter(color, self) }
 }

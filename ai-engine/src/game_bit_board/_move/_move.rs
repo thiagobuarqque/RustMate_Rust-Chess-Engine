@@ -2,7 +2,10 @@ use core::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use crate::game_bit_board::{enums::{Color, PieceType}, utils::utils::get_piece_letter};
+use crate::game_bit_board::{
+    enums::{Color, PieceType},
+    utils::utils::get_piece_letter,
+};
 
 use super::move_contants::*;
 
@@ -38,7 +41,7 @@ pub struct Move {
     en_passant_bb_piece_square: u64,
     pub color: Color,
     pub piece_type: PieceType,
-    
+
     pub move_worth: f32,
 
     // Board state before making this move
@@ -117,13 +120,9 @@ impl Move {
         }
     }
 
-    pub fn sum_to_move_worth(&mut self, value: f32) {
-        self.move_worth += value
-    }
+    pub fn sum_to_move_worth(&mut self, value: f32) { self.move_worth += value }
 
-    pub fn get_move_worth(&mut self) -> f32 {
-        self.move_worth
-    }
+    pub fn get_move_worth(&mut self) -> f32 { self.move_worth }
 
     pub fn as_u64(&self) -> u64 { self._move as u64 }
 
@@ -141,7 +140,7 @@ impl Move {
 
     pub fn is_queen_castle(&self) -> bool { self.get_flags() == QUEEN_CASTLE }
 
-    pub fn is_capture(&self) -> bool { 
+    pub fn is_capture(&self) -> bool {
         let flags = self.get_flags();
 
         (flags == CAPTURE) || (flags == EN_PASSANT) || self.is_promo_capture()
@@ -193,7 +192,6 @@ impl Move {
         };
 
         format!("{}{}{}", from_square, to_square, promotion)
-
     }
 
     pub fn to_algebraic_notation(&self) -> String {
@@ -233,15 +231,13 @@ impl Move {
         }
 
         // Handle pawn capture notation
-        // let pawn_file = if self.piece_type == PieceType::Pawn && capture_symbol == "x" {
-        //     self.file_of(from_square.clone())
+        // let pawn_file = if self.piece_type == PieceType::Pawn && capture_symbol ==
+        // "x" {     self.file_of(from_square.clone())
         // } else {
         //     "".to_string()
         // };
 
-        format!(
-            "{piece}{from_square}{capture_symbol}{to_square}{promotion}"
-        )
+        format!("{piece}{from_square}{capture_symbol}{to_square}{promotion}")
     }
 
     fn decode_square(&self, square_index: u16) -> String {
@@ -260,9 +256,7 @@ impl Move {
         }
     }
 
-    fn file_of(&self, square: String) -> String {
-        square.chars().next().unwrap().to_string()
-    }
+    fn file_of(&self, square: String) -> String { square.chars().next().unwrap().to_string() }
 
     pub fn get_promotion_piece_type(&self) -> PieceType {
         match self.get_flags() {
