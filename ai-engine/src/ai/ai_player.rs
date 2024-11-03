@@ -26,44 +26,49 @@ pub fn get_ai_move(board: &mut Board, move_generator: &mut MoveGenerator, time_t
 
     let start_time = Instant::now();
 
+    // let (score, best_move) = negamax(
+    //     board,
+    //     -f32::MAX,
+    //     -alpha,
+    //     !max,
+    //     depth,
+    //     &mut transposition_table,
+    //     move_generator,
+    //     start_time,
+    //     time_to_think
+    // );
+
     while Instant::now().duration_since(start_time) < Duration::new(time_to_think, 0)
         && depth < u8::MAX {
 
-        let moves: Vec<Move> =
-            get_sorted_moves(&Some(best_move), board, true, move_generator);
+        // let moves: Vec<Move> =
+        //     get_sorted_moves(&Some(best_move), board, true, move_generator);
 
-        for _move in moves {
-            if Instant::now().duration_since(start_time) >= Duration::new(time_to_think, 0) {
-                break;
-            }
+        let result = negamax(
+            board,
+            -f32::MAX,
+            -alpha,
+            max,
+            depth,
+            &mut transposition_table,
+            move_generator,
+            start_time,
+            time_to_think
+        );
 
-            let score = -negamax(
-                board,
-                -f32::MAX,
-                -alpha,
-                !max,
-                depth,
-                &mut transposition_table,
-                move_generator,
-                start_time,
-                time_to_think
-            );
-
-            if score > alpha {
-                alpha = score;
-                best_move = _move.clone();
-            }
+        if result.0 > alpha {
+            alpha = result.0;
+            best_move = result.1.unwrap();
         }
 
         depth += 1;
-        max = !max;
+        // max = !max;
 
-        println!(
-            "Transposition table size on depth {}: ~{}kb",
-            depth,
-            transposition_table.estimated_memory_usage_kb()
-        );
     }
+    println!(
+        "Transposition table size: ~{}kb",
+        transposition_table.estimated_memory_usage_kb()
+    );
 
     println!("Evaluated {} states in {}ms with depth of {} and {} hits in the table. Best move eval: {}", 
         transposition_table.len(), start_time.elapsed().as_millis(), depth, transposition_table.get_hits(), best_move.get_move_worth());
@@ -81,10 +86,8 @@ fn negamax(
     move_generator: &mut MoveGenerator,
     start_time: Instant,
     time_to_think: u64
-) -> f32 {
-    if Instant::now().duration_since(start_time) >= Duration::new(time_to_think, 0) {
-        return alpha;
-    }
+) -> (f32, Option<Move>) {
+
     // Check if the position is already in the table
 
     let mut best_move = None;
@@ -93,7 +96,7 @@ fn negamax(
         best_move = entry.best_move.clone();
 
         if entry.depth >= depth {
-            return entry.value;
+            return (entry.value, best_move);
         }
     }
 
@@ -113,9 +116,9 @@ fn negamax(
 
         // Favors checkmates that require less moves
         return if board.is_game_finished() && depth > 1 {
-            value * depth as f32
+            (value * depth as f32, best_move)
         } else {
-            value
+            (value, best_move)
         };
     }
 
@@ -143,7 +146,7 @@ fn negamax(
             move_generator,
             start_time,
             time_to_think
-        );
+        ).0;
 
         let game_finished = board.is_game_finished();
 
@@ -175,5 +178,5 @@ fn negamax(
         },
     );
 
-    alpha
+    (alpha, best_move)
 }

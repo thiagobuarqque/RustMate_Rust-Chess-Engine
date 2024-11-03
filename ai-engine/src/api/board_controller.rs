@@ -55,7 +55,7 @@ pub async fn move_piece(
 
     let mut move_generator = move_generator.lock().unwrap();
 
-    let moves = move_generator.get_moves(board).unwrap();
+    let moves = move_generator.get_moves(board).unwrap().0;
 
     let moves = moves
         .iter()
@@ -138,7 +138,7 @@ pub fn get_board_response(
 
 fn get_pieces(board: &mut Board, move_generator: &mut MoveGenerator) -> Vec<Value> {
     let moves: Vec<MoveDTO> = match move_generator.get_moves(board) {
-        Ok(moves) => moves
+        Ok(moves) => moves.0
             .iter()
             .map(|_move| MoveDTO::from_move(_move))
             .collect(),

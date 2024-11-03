@@ -10,7 +10,7 @@ pub fn get_sorted_moves(
     max: bool,
     move_generator: &mut MoveGenerator
 ) -> Vec<Move> {
-    let mut moves = move_generator.get_moves(board).unwrap();
+    let (mut moves, attack_data) = move_generator.get_moves(board).unwrap();
 
     let end_game = is_end_game(board);
 
@@ -24,12 +24,12 @@ pub fn get_sorted_moves(
         }
 
         if _move.is_promotion() {
-            _move.sum_to_move_worth(get_piece_worth(_move.get_promotion_piece_type()));
+            _move.sum_to_move_worth(get_piece_worth(_move.get_promotion_piece_type()) * 5.0);
         }
 
-        // if attacked_positions.contains(&_move.get_to_position()) {
-        //     _move.sum_to_move_worth(-get_piece_worth(moving_piece))
-        // }
+        if (!attack_data.king_allowed_squares) & _move.get_to() as u64 != 0 {
+            _move.sum_to_move_worth(-get_piece_worth(_move.piece_type))
+        }
 
         _move.sum_to_move_worth(get_position_value(
             end_game,

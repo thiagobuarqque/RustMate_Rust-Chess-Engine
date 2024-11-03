@@ -35,7 +35,7 @@ pub struct MoveGenerator {
     opponent_pieces_bb: u64,
     occupied_squares: u64,
     side_to_move: Color,
-    attack_data: AttackData,
+    // attack_data: AttackData,
 }
 
 impl MoveGenerator {
@@ -73,7 +73,7 @@ impl MoveGenerator {
             opponent_pieces_bb: 0,
             occupied_squares: 0,
             side_to_move: Color::White,
-            attack_data: AttackData::new(),
+            // attack_data: AttackData::new(),
         }
     }
 
@@ -85,7 +85,7 @@ impl MoveGenerator {
         self.occupied_squares = self.friendly_pieces_bb | self.opponent_pieces_bb;
     }
 
-    pub fn get_moves(&mut self, board: &mut Board) -> Result<Vec<Move>, &'static str> {
+    pub fn get_moves(&mut self, board: &mut Board) -> Result<(Vec<Move>, AttackData), &'static str> {
         if board.is_game_finished() {
             return Err("Can't generate moves. Game has already ended.");
         }
@@ -180,7 +180,7 @@ impl MoveGenerator {
             board.set_winner(winner.to_string());
         }
 
-        Ok(moves)
+        Ok((moves, attack_data))
     }
 
     pub fn create_moves(
@@ -539,7 +539,7 @@ mod tests {
         let mut move_generator = MOVE_GENERATOR.lock().unwrap();
 
         let moves = match move_generator.get_moves(board) {
-            Ok(moves) => moves,
+            Ok(moves) => moves.0,
             Err(_) => Vec::new(),
         };
 
