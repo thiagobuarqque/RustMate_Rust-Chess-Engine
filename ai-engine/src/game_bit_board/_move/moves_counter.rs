@@ -37,7 +37,13 @@ fn _count_moves(
     moves.iter_mut().for_each(|_move| {
         board.move_piece(_move);
 
-        let moves_count = _count_moves(board, new_depth, false, move_generator, lookup_table);
+        let key = (board.get_zobrist_hash(), new_depth);
+
+        let moves_count = if lookup_table.contains_key(&key) {
+            lookup_table.get(&key).unwrap().clone()
+        } else {
+            _count_moves(board, new_depth, false, move_generator, lookup_table)
+        };
 
         num_positions += moves_count;
 
@@ -47,6 +53,8 @@ fn _count_moves(
 
         board.unmake_last_move();
     });
+
+    lookup_table.insert((board.get_zobrist_hash(), depth), num_positions);
 
     num_positions
 }
@@ -93,6 +101,7 @@ mod moves_counter_test {
         results.push((4, 197_281));
         results.push((5, 4_865_609));
         results.push((6, 119_060_324));
+        results.push((7, 3_195_901_860));
 
         assert_fen_moves(
             String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
@@ -112,6 +121,7 @@ mod moves_counter_test {
         results.push((3, 97_862));
         results.push((4, 4_085_603));
         results.push((5, 193_690_690));
+        results.push((6, 8_031_647_685));
 
         assert_fen_moves(
             String::from("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"),
@@ -133,6 +143,7 @@ mod moves_counter_test {
         results.push((5, 674_624));
         results.push((6, 11_030_083));
         results.push((7, 178_633_661));
+        results.push((8, 3_009_794_393));
 
         assert_fen_moves(
             String::from("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -"),
@@ -152,6 +163,7 @@ mod moves_counter_test {
         results.push((3, 9_467));
         results.push((4, 422_333));
         results.push((5, 15_833_292));
+        results.push((6, 706_045_033));
 
         assert_fen_moves(
             String::from("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"),
@@ -190,6 +202,7 @@ mod moves_counter_test {
         results.push((3, 89_890));
         results.push((4, 3_894_594));
         results.push((5, 164_075_551));
+        results.push((6, 6_923_051_137));
 
         assert_fen_moves(
             String::from(

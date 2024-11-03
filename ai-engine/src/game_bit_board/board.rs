@@ -290,6 +290,12 @@ impl Board {
         self.bitboards[get_color_index(color)] |= bb_position;
 
         self.bitboards[get_piece_type_index(piece_type)] |= bb_position;
+
+        self.zobrist.on_place_piece(
+            piece_type,
+            color,
+            pop_lsb(&mut bb_position.clone()) as usize,
+        );
     }
 
     /// This function assumes the piece exists
@@ -297,6 +303,12 @@ impl Board {
         self.bitboards[get_color_index(color)] ^= bb_position;
 
         self.bitboards[get_piece_type_index(piece_type)] ^= bb_position;
+
+        self.zobrist.on_remove_piece(
+            piece_type,
+            color,
+            pop_lsb(&mut bb_position.clone()) as usize,
+        );
     }
 
     fn save_current_state(&mut self, _move: &mut Move) {
@@ -435,25 +447,7 @@ impl Board {
 
         self.update_castling_rights(color, from, to);
 
-        if _move.is_promotion() {
-            self.zobrist.update_hash_on_move(
-                opponent_piece,
-                color,
-                from_square,
-                PieceType::Pawn,
-                to_square,
-                Some(piece_type),
-            );
-        } else {
-            self.zobrist.update_hash_on_move(
-                opponent_piece,
-                color,
-                from_square,
-                piece_type,
-                to_square,
-                None,
-            );
-        }
+        self.zobrist.on_after_move();
     }
 
     fn update_castling_rights(&mut self, color: Color, from: u64, to: u64) {
@@ -499,9 +493,11 @@ impl Board {
     }
 
     fn handle_king_move(&mut self, color: Color, _move: &Move) {
-        if color.is_black() {
+        if color.is_black() && !self.black_king_moved {
             self.black_king_moved = true;
             self.castling_rights &= Board::WHITE_CASTLING_RIGHTS;
+            self.zobrist.update_hash_on_black_lose_king_side_castle();
+            self.zobrist.update_hash_on_black_lose_queen_side_castle();
 
             if _move.is_king_castle() {
                 self.remove_piece(
@@ -526,9 +522,11 @@ impl Board {
                     Board::BLACK_QUEEN_SIDE_CASTLE_ROOK_FINAL_POS,
                 );
             }
-        } else {
+        } else if color.is_white() && !self.white_king_moved {
             self.white_king_moved = true;
             self.castling_rights &= Board::BLACK_CASTLING_RIGHTS;
+            self.zobrist.update_hash_on_white_lose_king_side_castle();
+            self.zobrist.update_hash_on_white_lose_queen_side_castle();
 
             if _move.is_king_castle() {
                 self.remove_piece(
@@ -663,14 +661,16 @@ impl Board {
 
     pub fn get_zobrist_hash(&self) -> u64 { self.zobrist.get_hash() }
 
-    pub fn display(&self) { self.display_with_attacks(Vec::new()); }
+    pub fn display(&self) -> String { self.display_with_attacks(Vec::new()) }
 
-    pub fn display_with_attacks(&self, attack_squares: Vec<usize>) {
-        println!("Zobrist: {:b}", self.zobrist.get_hash());
-        println!("FEN: {}", self.to_fen());
+    pub fn display_with_attacks(&self, attack_squares: Vec<usize>) -> String {
+        let mut result = String::new();
+
+        result.push_str(format!("\nZobrist: {:b}\n", self.zobrist.get_hash()).as_str());
+        result.push_str(format!("FEN: {}\n", self.to_fen()).as_str());
 
         for row in (0..8).rev() {
-            print!("{} ", row + 1);
+            result.push_str(format!("{} ", row + 1).as_str());
             for col in 0..8 {
                 let square = row * 8 + col;
 
@@ -680,11 +680,13 @@ impl Board {
                     get_piece_symbol(self.get_piece_color(square), self.get_piece_type(square))
                 };
 
-                print!("{} ", piece_char);
+                result.push_str(format!("{} ", piece_char).as_str());
             }
-            println!();
+            result.push_str("\n");
         }
-        println!("  a b c d e f g h");
+        result.push_str(format!("  a b c d e f g h\n").as_str());
+
+        result
     }
 }
 

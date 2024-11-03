@@ -126,7 +126,9 @@ async fn main() -> std::io::Result<()> {
     println!("Server started successfully 🚀!");
 
     // let state = Data::new(Mutex::new(GlobalState::new()));
-    let board = Data::new(Mutex::new(Board::new()));
+    let board = Data::new(Mutex::new(Board::from_fen(
+        "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
+    )));
     let move_generator = Data::new(Mutex::new(MoveGenerator::new()));
 
     HttpServer::new(move || {

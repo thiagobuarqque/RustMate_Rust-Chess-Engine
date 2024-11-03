@@ -17,7 +17,7 @@ impl TranspositionTableEntry {
 }
 
 pub struct TranspositionTable {
-    table: HashMap<u64, TranspositionTableEntry>,
+    table: HashMap<(u64, u8), TranspositionTableEntry>,
     hits: u64,
 }
 
@@ -29,17 +29,17 @@ impl TranspositionTable {
         }
     }
 
-    pub fn store(&mut self, hash: u64, entry: TranspositionTableEntry) {
+    pub fn store(&mut self, key: (u64, u8), entry: TranspositionTableEntry) {
         // Handle entry storage, collision resolution, etc.
-        self.table.insert(hash, entry);
+        self.table.insert(key, entry);
     }
 
     pub fn len(&self) -> usize {
         self.table.len()
     }
 
-    pub fn retrieve(&mut self, hash: u64) -> Option<&TranspositionTableEntry> {
-        let entry = self.table.get(&hash);
+    pub fn retrieve(&mut self, key: (u64, u8)) -> Option<&TranspositionTableEntry> {
+        let entry = self.table.get(&key);
 
         if entry.is_some() {
             self.hits += 1

@@ -28,7 +28,7 @@ use super::zobrist_utils::{
 
 #[derive(Debug, Clone)]
 pub struct Zobrist {
-    board_hashes: [[u64; 64]; 12],
+    board_hashes: [[u64; 12]; 64],
     castling_rights_hash: [u64; 4],
     en_passant_hash: [u64; 8],
     hash: u64,
@@ -37,9 +37,9 @@ pub struct Zobrist {
 
 impl Zobrist {
     pub fn new() -> Self {
-        let mut rng = StdRng::seed_from_u64(222);
+        let mut rng = StdRng::seed_from_u64(123);
 
-        let mut board_hashes = [[0u64; 64]; 12];
+        let mut board_hashes = [[0u64; 12]; 64];
 
         for row in board_hashes.iter_mut() {
             for j in 0..row.len() {
@@ -74,34 +74,19 @@ impl Zobrist {
 
     pub fn set_hash(&mut self, hash: u64) { self.hash = hash }
 
-    pub fn update_hash_on_move(
-        &mut self, captured_piece: PieceType, color: Color, from_index: usize,
-        moved_piece: PieceType, to_index: usize, promotion_piece: Option<PieceType>,
-    ) {
-        let moved_piece_index = get_piece_index(color, moved_piece);
+    pub fn on_remove_piece(&mut self, piece: PieceType, color: Color, from_square: usize) {
+        let moved_piece_index = get_piece_index(color, piece);
 
-        // XOR out the old position of the moved piece
-        self.hash ^= self.board_hashes[moved_piece_index][from_index];
-
-        // If a piece was captured, XOR it out
-        if captured_piece != PieceType::Empty {
-            let captured_piece_index = get_piece_index(color.opponent(), captured_piece);
-
-            self.hash ^= self.board_hashes[captured_piece_index][to_index];
-        }
-
-        // XOR in the new position of the moved piece
-        if promotion_piece.is_some() {
-            self.hash ^=
-                self.board_hashes[get_piece_index(color, promotion_piece.unwrap())][to_index];
-        } else {
-            self.hash ^= self.board_hashes[moved_piece_index][to_index];
-        }
-
-        if color.opponent().is_black() {
-            self.hash ^= self.side_to_move_hash;
-        }
+        self.hash ^= self.board_hashes[from_square][moved_piece_index];
     }
+
+    pub fn on_place_piece(&mut self, piece: PieceType, color: Color, to_square: usize) {
+        let moved_piece_index = get_piece_index(color, piece);
+
+        self.hash ^= self.board_hashes[to_square][moved_piece_index];
+    }
+
+    pub fn on_after_move(&mut self) { self.hash ^= self.side_to_move_hash; }
 
     pub fn update_en_passant_hash(&mut self, en_passant_square_bb: u64) {
         let square = pop_lsb(&mut (en_passant_square_bb.clone())) as usize;
@@ -165,7 +150,7 @@ impl Zobrist {
             let piece_color = board.get_piece_color(square);
 
             if piece_type != PieceType::Empty {
-                hash ^= self.board_hashes[get_piece_index(piece_color, piece_type)][square];
+                hash ^= self.board_hashes[square][get_piece_index(piece_color, piece_type)];
             }
         }
 

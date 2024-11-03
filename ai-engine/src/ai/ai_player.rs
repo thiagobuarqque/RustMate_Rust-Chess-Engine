@@ -89,27 +89,27 @@ fn negamax(
 
     let mut best_move = None;
 
-    // if let Some(entry) = transposition_table.retrieve(board.get_zobrist_hash()) {
-    //     best_move = entry.best_move.clone();
+    if let Some(entry) = transposition_table.retrieve((board.get_zobrist_hash(), depth)) {
+        best_move = entry.best_move.clone();
 
-    //     if entry.depth >= depth {
-    //         return entry.value;
-    //     }
-    // }
+        if entry.depth >= depth {
+            return entry.value;
+        }
+    }
 
     let mut moves: Vec<Move> = get_sorted_moves(&best_move, board, max, move_generator);
 
     if depth == 0 || board.is_game_finished() {
         let value: f32 = get_board_value(board, max);
 
-        // transposition_table.store(
-        //     board.get_zobrist_hash(),
-        //     TranspositionTableEntry {
-        //         depth,
-        //         value,
-        //         best_move,
-        //     },
-        // );
+        transposition_table.store(
+            (board.get_zobrist_hash(), depth),
+            TranspositionTableEntry {
+                depth,
+                value,
+                best_move,
+            },
+        );
 
         // Favors checkmates that require less moves
         return if board.is_game_finished() && depth > 1 {
@@ -154,7 +154,7 @@ fn negamax(
         if score > alpha {
             alpha = score;
 
-            // best_move = Some(_move.clone());
+            best_move = Some(_move.clone());
 
             if alpha >= beta {
                 break;
@@ -166,14 +166,14 @@ fn negamax(
         }
     }
 
-    // transposition_table.store(
-    //     board.get_zobrist_hash(),
-    //     TranspositionTableEntry {
-    //         depth,
-    //         value: alpha,
-    //         best_move,
-    //     },
-    // );
+    transposition_table.store(
+        (board.get_zobrist_hash(), depth),
+        TranspositionTableEntry {
+            depth,
+            value: alpha,
+            best_move,
+        },
+    );
 
     alpha
 }
