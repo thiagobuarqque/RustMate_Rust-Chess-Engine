@@ -1,11 +1,19 @@
 use std::collections::HashMap;
 
-use crate::game_bit_board::_move::_move::Move;
+use crate::game_bit_board::{_move::_move::Move};
+
+#[derive(Debug, PartialEq)]
+pub enum EntryFlag {
+    Upperbound = 0,
+    Lowerbound = 1,
+    Exact = 2
+}
 
 pub struct TranspositionTableEntry {
     pub depth: u8,
     pub value: f32,
     pub best_move: Option<Move>,
+    pub flag: EntryFlag
 }
 
 impl TranspositionTableEntry {

@@ -27,7 +27,9 @@ pub fn get_sorted_moves(
             _move.sum_to_move_worth(get_piece_worth(_move.get_promotion_piece_type()) * 5.0);
         }
 
-        if (!attack_data.king_allowed_squares) & _move.get_to() as u64 != 0 {
+        let attacked_squares = !attack_data.king_allowed_squares;
+
+        if attacked_squares & _move.get_to() as u64 != 0 {
             _move.sum_to_move_worth(-get_piece_worth(_move.piece_type))
         }
 
