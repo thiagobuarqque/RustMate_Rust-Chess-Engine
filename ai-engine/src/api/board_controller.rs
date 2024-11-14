@@ -8,14 +8,13 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use serde_json::{json, Value};
 
 use crate::{
-    dto::dtos::{FenDTO, MoveDTO, MovesCountDTO},
-    game_bit_board::{
+    ai::ai_utils::{_get_board_value, get_board_value}, dto::dtos::{FenDTO, MoveDTO, MovesCountDTO}, game_bit_board::{
         _move::{_move::Move, moves_counter::count_moves},
         board::Board,
         enums::Color,
         move_generator::move_generator::MoveGenerator,
         utils::utils::get_piece_letter,
-    },
+    }
 };
 
 #[get("/board")]
@@ -121,6 +120,8 @@ pub fn get_board_response(
         .map(|capture| capture.to_fen(Color::Black))
         .collect::<Vec<String>>();
 
+    let board_evaluation = _get_board_value(board, 1.0, true);
+
     HttpResponse::Ok().json(json!({
         "blackCaptures": black_captures,
         "enPassant": en_passant,
@@ -132,7 +133,8 @@ pub fn get_board_response(
         "zobrit": zobrist,
         "pieces": pieces,
         "whiteKingInCheck": false,
-        "movesHistory": board.get_moves_history().iter().map(|_move| MoveDTO::from_move(_move)).collect::<Vec<MoveDTO>>()
+        "movesHistory": board.get_moves_history().iter().map(|_move| MoveDTO::from_move(_move)).collect::<Vec<MoveDTO>>(),
+        "evaluation": board_evaluation
     }))
 }
 

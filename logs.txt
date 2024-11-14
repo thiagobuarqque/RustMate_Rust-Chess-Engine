@@ -1,0 +1,4 @@
+(QUEEN_WORTH * 0) + (ROOK_WORTH * 0) + (BISHOP_WORTH * (0 + 0)) + (PAWN_WORTH * 0)
+        - ((0 + 0 + 0) / 2.0)
+        + (0 / 10.0)
+        + 0 = 0
