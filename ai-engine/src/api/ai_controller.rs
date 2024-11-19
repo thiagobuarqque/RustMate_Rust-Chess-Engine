@@ -27,7 +27,7 @@ pub async fn ai_move(
     }
 
     let (duration, depth, evaluation, mut ai_move) =
-        get_ai_move(&mut board, &mut move_generator, 2);
+        get_ai_move(&mut board, &mut move_generator, 3);
 
     let _ = board.move_piece(&mut ai_move);
 

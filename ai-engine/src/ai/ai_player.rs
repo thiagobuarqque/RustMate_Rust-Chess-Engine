@@ -40,28 +40,28 @@ pub fn get_ai_move(board: &mut Board, move_generator: &mut MoveGenerator, time_t
             time_to_think
         );
 
-        // score = result.0;
+         score = result.0;
 
-        // if result.1.is_some() {
-        //   _move = result.1.unwrap();
-        // }
+         if result.1.is_some() {
+           _move = result.1.unwrap();
+         }
 
         println!("\nAt depth {depth} the best move is: {} and the evaluation is {}",
-        result.1.unwrap(), result.0);
+        _move, score);
 
 
-        if result.0 > score {
-            println!("That move is better than the previous one: {_move}");
-            score = result.0;
-            _move = result.1.unwrap();
-        }
-
+        //if result.0 > score {
+        //    println!("That move is better than the previous one: {_move}");
+        //    score = result.0;
+        //    _move = result.1.unwrap();
+        //}
+        //
         depth += 1;
     }
 
     println!(
-        "Transposition table size: ~{}kb",
-        transposition_table.estimated_memory_usage_kb()
+        "\nTransposition table size: ~{}kb. It got {} hits\n",
+        transposition_table.estimated_memory_usage_kb(), transposition_table.get_hits()
     );
 
     // println!("Evaluated {} states in {}ms with depth of {} and {} hits in the table. Best move eval: {}", 
@@ -85,7 +85,7 @@ fn negamax(
     let mut best_move = None;
     let original_alpha = alpha;
 
-    if let Some(entry) = transposition_table.retrieve((board.get_zobrist_hash(), depth)) {
+    if let Some(entry) = transposition_table.retrieve(board.get_zobrist_hash()) {
         if entry.depth >= depth {
           best_move = entry.best_move.clone();
           
@@ -154,7 +154,7 @@ fn negamax(
     // println!("Best move at depth {depth}: {}", best_move.unwrap());
 
     transposition_table.store(
-        (board.get_zobrist_hash(), depth),
+        board.get_zobrist_hash(),
         TranspositionTableEntry {
             depth,
             value,

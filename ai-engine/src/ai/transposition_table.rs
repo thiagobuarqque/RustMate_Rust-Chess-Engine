@@ -21,11 +21,12 @@ impl TranspositionTableEntry {
         std::mem::size_of::<u8>()
             + std::mem::size_of::<f32>()
             + std::mem::size_of::<Option<Move>>()
+            + std::mem::size_of::<EntryFlag>()
     }
 }
 
 pub struct TranspositionTable {
-    table: HashMap<(u64, u8), TranspositionTableEntry>,
+    table: HashMap<u64, TranspositionTableEntry>,
     hits: u64,
 }
 
@@ -37,7 +38,7 @@ impl TranspositionTable {
         }
     }
 
-    pub fn store(&mut self, key: (u64, u8), entry: TranspositionTableEntry) {
+    pub fn store(&mut self, key: u64, entry: TranspositionTableEntry) {
         // Handle entry storage, collision resolution, etc.
         self.table.insert(key, entry);
     }
@@ -46,7 +47,7 @@ impl TranspositionTable {
         self.table.len()
     }
 
-    pub fn retrieve(&mut self, key: (u64, u8)) -> Option<&TranspositionTableEntry> {
+    pub fn retrieve(&mut self, key: u64) -> Option<&TranspositionTableEntry> {
         let entry = self.table.get(&key);
 
         if entry.is_some() {
