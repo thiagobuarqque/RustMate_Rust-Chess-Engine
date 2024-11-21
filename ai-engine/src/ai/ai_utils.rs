@@ -13,7 +13,7 @@ pub fn get_sorted_moves(
     let (mut moves, attack_data) = move_generator.get_moves(board).unwrap();
 
     let end_game = is_end_game(board);
-    return moves;
+    
     moves.iter_mut().for_each(|_move| {
         if _move.is_capture() {
             let target_piece = board.get_piece_type(_move.get_to());

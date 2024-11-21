@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(warnings)]
 
 use std::{io, num::ParseIntError, sync::Mutex};
 

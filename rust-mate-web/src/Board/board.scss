@@ -44,7 +44,7 @@ div#board {
     grid-template-columns: repeat(8, 1fr);
 
     &:nth-child(even) {
-      .cell:nth-child(even) {
+      .cell:nth-child(odd) {
         background-color: var(--thirdary);
 
         .move-dot {
@@ -52,7 +52,7 @@ div#board {
         }
       }
 
-      .cell:nth-child(odd) {
+      .cell:nth-child(even) {
         background-color: var(--primary);
 
         .move-dot {
@@ -62,7 +62,7 @@ div#board {
     }
 
     &:nth-child(odd) {
-      .cell:nth-child(odd) {
+      .cell:nth-child(even) {
         background-color: var(--thirdary);
 
         .move-dot {
@@ -70,7 +70,7 @@ div#board {
         }
       }
 
-      .cell:nth-child(even) {
+      .cell:nth-child(odd) {
         background-color: var(--primary);
 
         .move-dot {

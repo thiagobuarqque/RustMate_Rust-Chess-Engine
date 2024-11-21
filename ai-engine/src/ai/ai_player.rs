@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 //     game::board::Board,
 // };
 
-use crate::{constants::constants::WINNER_DRAW, game_bit_board::{_move::_move::Move, board::Board, enums::{Color, PieceType}, move_generator::move_generator::MoveGenerator}};
+use crate::{ai::tree_node::TreeNode, constants::constants::WINNER_DRAW, game_bit_board::{_move::_move::Move, board::Board, enums::{Color, PieceType}, move_generator::move_generator::MoveGenerator}};
 
 use super::{
     ai_utils::{get_board_value, get_sorted_moves},
@@ -24,7 +24,7 @@ pub fn get_ai_move(board: &mut Board, move_generator: &mut MoveGenerator, time_t
     let mut score = f32::MIN;
 
     let start_time = Instant::now();
-
+// let time_to_think = 1000000;
     while Instant::now().duration_since(start_time) < Duration::new(time_to_think, 0)
         && depth < u8::MAX {
 
@@ -40,14 +40,14 @@ pub fn get_ai_move(board: &mut Board, move_generator: &mut MoveGenerator, time_t
             time_to_think
         );
 
-         score = result.0;
+        score = result.0;
 
-         if result.1.is_some() {
-           _move = result.1.unwrap();
-         }
+        if result.1.is_some() {
+            _move = result.1.unwrap();
+        }
 
-        println!("\nAt depth {depth} the best move is: {} and the evaluation is {}",
-        _move, score);
+        // println!("\nAt depth {depth} the best move is: {} and the evaluation is {}",
+        // _move, score);
 
 
         //if result.0 > score {
@@ -57,6 +57,7 @@ pub fn get_ai_move(board: &mut Board, move_generator: &mut MoveGenerator, time_t
         //}
         //
         depth += 1;
+        // break;
     }
 
     println!(
@@ -109,19 +110,37 @@ fn negamax(
 
     if depth == 0 || board.is_game_finished() {
         let value: f32 = get_board_value(board, color);
-
+        
         // Favors checkmates that require less moves
-        return if board.is_game_finished() && board.get_winner() != WINNER_DRAW && depth > 1 {
-            ((value * depth as f32) * color, best_move)
+        let value = if board.is_game_finished() && board.get_winner() != WINNER_DRAW && depth > 1 {
+            (value * depth as f32) * color
         } else {
-            (value * color, best_move)
+            value * color
         };
+
+        // println!("It's a leaf! Board eval: {}", value);
+
+        transposition_table.store(
+            board.get_zobrist_hash(),
+            TranspositionTableEntry {
+                depth,
+                value,
+                best_move,
+                flag: if value <= original_alpha {
+                    EntryFlag::Upperbound         
+                } else if value >= beta {
+                    EntryFlag::Lowerbound
+                } else { EntryFlag::Exact }
+            },
+        );
+
+        return (value, best_move);
     }
 
     for _move in moves.iter_mut() {
-        if Instant::now().duration_since(start_time) >= Duration::new(time_to_think, 0) {
-            break;
-        }
+        // if Instant::now().duration_since(start_time) >= Duration::new(time_to_think, 0) {
+        //     break;
+        // }
 
         board.move_piece(_move);
 
