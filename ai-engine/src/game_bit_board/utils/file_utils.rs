@@ -1,6 +1,4 @@
-use std::fs;
-use std::fs::OpenOptions;
-use std::io::Write;
+use std::{fs, fs::OpenOptions, io::Write};
 
 pub fn read_file(file_path: &str) -> Result<String, std::io::Error> {
     let content = fs::read_to_string(file_path)?;

@@ -8,13 +8,15 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use serde_json::{json, Value};
 
 use crate::{
-    ai::ai_utils::{_get_board_value, get_board_value}, dto::dtos::{FenDTO, MoveDTO, MovesCountDTO}, game_bit_board::{
+    ai::ai_utils::{_get_board_value, get_board_value},
+    dto::dtos::{FenDTO, MoveDTO, MovesCountDTO},
+    game_bit_board::{
         _move::{_move::Move, moves_counter::count_moves},
         board::Board,
         enums::Color,
         move_generator::move_generator::MoveGenerator,
         utils::utils::get_piece_letter,
-    }
+    },
 };
 
 #[get("/board")]
@@ -140,7 +142,8 @@ pub fn get_board_response(
 
 fn get_pieces(board: &mut Board, move_generator: &mut MoveGenerator) -> Vec<Value> {
     let moves: Vec<MoveDTO> = match move_generator.get_moves(board) {
-        Ok(moves) => moves.0
+        Ok(moves) => moves
+            .0
             .iter()
             .map(|_move| MoveDTO::from_move(_move))
             .collect(),

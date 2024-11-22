@@ -85,7 +85,9 @@ impl MoveGenerator {
         self.occupied_squares = self.friendly_pieces_bb | self.opponent_pieces_bb;
     }
 
-    pub fn get_moves(&mut self, board: &mut Board) -> Result<(Vec<Move>, AttackData), &'static str> {
+    pub fn get_moves(
+        &mut self, board: &mut Board,
+    ) -> Result<(Vec<Move>, AttackData), &'static str> {
         if board.is_game_finished() {
             return Err("Can't generate moves. Game has already ended.");
         }
