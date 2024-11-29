@@ -9,7 +9,7 @@ import moveAudio from "../assets/sound/move-self.mp3";
 import http, { get, postWithBody } from "../http-common";
 
 import "./board.scss";
-import { CAPTURE, INITIAL_FEN } from "./constants";
+import { CAPTURE, INITIAL_FEN, isCapture } from "./constants";
 
 import Cell from "./Cell";
 import Confetti from "../utils/confetti";
@@ -137,7 +137,7 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 
 		cellPiece?.classList.remove("disabled");
 
-		playMoveAudio((move.flags & CAPTURE) !== 0);
+		playMoveAudio(isCapture(move.flags));
 
 		hideAllAvailableMoves();
 
@@ -148,7 +148,7 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 	const movePromotionPawn = (promotionOption: number) => {
 		// setPromotionPosition(promotionOption);
 
-		let moves = board.pieces[selectedPiecePos].moves;
+		const moves = board.pieces[selectedPiecePos].moves;
 
 		const move = moves.filter((move) => move.to === promotionPosition && move.flags === promotionOption);
 
@@ -165,8 +165,12 @@ const Board: React.FC<IProps> = ({board, setBoard}) => {
 	const getAiMove = () => {
 		// setIsWaitingForAI(true);
 
-		get<AIResponse>("/ai/move", () => {
-			get<TBoard>("/board", setBoard);
+		get<AIResponse>("/ai/move", (aiResponse: AIResponse) => {
+        const move = aiResponse.aiMove;
+
+        playMoveAudio(isCapture(move.flags));
+
+        get<TBoard>("/board", setBoard);
 		});
 	};
 

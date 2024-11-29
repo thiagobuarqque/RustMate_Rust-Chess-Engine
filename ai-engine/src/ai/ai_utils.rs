@@ -5,7 +5,6 @@ use super::{constants::{
 }, utils::get_piece_worth};
 
 pub fn get_sorted_moves(
-    best_move: &Option<Move>,
     board: &mut Board,
     color: f32,
     move_generator: &mut MoveGenerator
@@ -40,12 +39,13 @@ pub fn get_sorted_moves(
             _move.color.is_white()
         ));
 
-        let mut move_clone = &mut _move.clone();
-        board.move_piece(&mut move_clone);
-
-        _move.sum_to_move_worth(get_board_value(board, -color));
-
-        board.unmake_last_move();
+        //let mut move_clone = &mut _move.clone();
+        //
+        //board.move_piece(&mut move_clone);
+        //
+        //_move.sum_to_move_worth(get_board_value(board, -color));
+        //
+        //board.unmake_last_move();
 
         // if end_game && _move.piece_type == PieceType::King {
         //     _move.sum_to_move_worth(get_end_game_move_worth(board, color, _move));
@@ -60,18 +60,18 @@ pub fn get_sorted_moves(
        moves.sort_by(|a, b| a.move_worth.partial_cmp(&b.move_worth).unwrap_or(std::cmp::Ordering::Equal));
     }
 
-    if best_move.is_some() {
-        let best_move = best_move.clone().unwrap();
-
-        for (i, _move) in moves.iter().enumerate() {
-            if _move.eq(&best_move) {
-                moves.remove(i);
-                moves.insert(0, best_move);
-
-                break;
-            }
-        }
-    }
+    //if best_move.is_some() {
+    //    let best_move = best_move.clone().unwrap();
+    //
+    //    for (i, _move) in moves.iter().enumerate() {
+    //        if _move.eq(&best_move) {
+    //            moves.remove(i);
+    //            moves.insert(0, best_move);
+    //
+    //            break;
+    //        }
+    //    }
+    //}
 
     moves
 }

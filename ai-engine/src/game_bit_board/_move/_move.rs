@@ -122,7 +122,7 @@ impl Move {
 
     pub fn sum_to_move_worth(&mut self, value: f32) { self.move_worth += value }
 
-    pub fn get_move_worth(&mut self) -> f32 { self.move_worth }
+    pub fn get_move_worth(&self) -> f32 { self.move_worth }
 
     pub fn as_u64(&self) -> u64 { self._move as u64 }
 

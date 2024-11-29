@@ -29,6 +29,11 @@ export const BISHOP_PROMOTION_CAPTURE: number = 0xD;
 export const ROOK_PROMOTION_CAPTURE: number = 0xE;
 export const QUEEN_PROMOTION_CAPTURE: number = 0xF;
 
+export function isCapture(flags: number) {
+  console.log("Ai flags: " + flags)
+  return flags == CAPTURE || flags >= KNIGHT_PROMOTION_CAPTURE;
+}
+
 export type TPromotionOption = typeof KNIGHT_PROMOTION | typeof BISHOP_PROMOTION
 
 export const TEN_MINUTES_IN_SECONDS = 600;
