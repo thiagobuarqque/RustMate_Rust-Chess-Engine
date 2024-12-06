@@ -4,16 +4,17 @@ use actix_web::{get, web, HttpResponse, Responder};
 use serde_json::json;
 
 use crate::{
-    ai::ai_player::AIPlayer, dto::dtos::MoveDTO, game_bit_board::{
+    ai::ai_player::AIPlayer,
+    dto::dtos::MoveDTO,
+    game_bit_board::{
         _move::_move::Move, board::Board, move_generator::move_generator::MoveGenerator,
-    }
+    },
 };
 
 #[get("/ai/move")]
 pub async fn ai_move(
-    board: web::Data<Mutex<Board>>,
-    move_generator:web::Data<Mutex<MoveGenerator>>) -> impl Responder {
-
+    board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>,
+) -> impl Responder {
     let mut board = board.lock().unwrap();
     let mut move_generator = move_generator.lock().unwrap();
 

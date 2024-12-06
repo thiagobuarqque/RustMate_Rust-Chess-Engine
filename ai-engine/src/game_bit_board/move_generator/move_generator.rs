@@ -27,15 +27,12 @@ use std::{collections::HashMap, u64, usize};
 
 #[derive(Clone)]
 pub struct MoveGenerator {
-    bishop_lookup_hash_table: HashMap<(u8, u64), u64>,
-    rook_lookup_hash_table: HashMap<(u8, u64), u64>,
     bishop_lookup_table: [Vec<u64>; 64],
     rook_lookup_table: [Vec<u64>; 64],
     friendly_pieces_bb: u64,
     opponent_pieces_bb: u64,
     occupied_squares: u64,
     side_to_move: Color,
-    // attack_data: AttackData,
 }
 
 impl MoveGenerator {
@@ -65,15 +62,12 @@ impl MoveGenerator {
         );
 
         Self {
-            bishop_lookup_hash_table,
-            rook_lookup_hash_table,
             bishop_lookup_table,
             rook_lookup_table,
             friendly_pieces_bb: 0,
             opponent_pieces_bb: 0,
             occupied_squares: 0,
             side_to_move: Color::White,
-            // attack_data: AttackData::new(),
         }
     }
 
@@ -105,47 +99,51 @@ impl MoveGenerator {
         let mut friendly_pieces = self.friendly_pieces_bb.clone();
 
         while friendly_pieces != 0 {
-            let square = pop_lsb(&mut friendly_pieces) as usize;
+            let square: usize = pop_lsb(&mut friendly_pieces) as usize;
 
-            let piece_type: PieceType = board.get_piece_type(square);
-
-            if piece_type == PieceType::Pawn {
-                self.generate_pawn_moves(board, &mut moves, square, &attack_data);
-            } else if piece_type == PieceType::Knight {
-                self.generate_knight_moves(&mut moves, square, &attack_data);
-            } else if piece_type == PieceType::Rook {
-                self.generate_orthogonal_moves(
-                    board,
-                    &mut moves,
-                    square,
-                    PieceType::Rook,
-                    &attack_data,
-                );
-            } else if piece_type == PieceType::Bishop {
-                self.generate_diagonal_moves(
-                    board,
-                    &mut moves,
-                    square,
-                    PieceType::Bishop,
-                    &attack_data,
-                );
-            } else if piece_type == PieceType::Queen {
-                self.generate_orthogonal_moves(
-                    board,
-                    &mut moves,
-                    square,
-                    PieceType::Queen,
-                    &attack_data,
-                );
-                self.generate_diagonal_moves(
-                    board,
-                    &mut moves,
-                    square,
-                    PieceType::Queen,
-                    &attack_data,
-                );
-            } else if piece_type == PieceType::King {
-                friendly_king_square = square
+            match board.get_piece_type(square) {
+                PieceType::Pawn => {
+                    self.generate_pawn_moves(board, &mut moves, square, &attack_data);
+                }
+                PieceType::Knight => {
+                    self.generate_knight_moves(&mut moves, square, &attack_data);
+                }
+                PieceType::Bishop => {
+                    self.generate_diagonal_moves(
+                        board,
+                        &mut moves,
+                        square,
+                        PieceType::Bishop,
+                        &attack_data,
+                    );
+                }
+                PieceType::Rook => {
+                    self.generate_orthogonal_moves(
+                        board,
+                        &mut moves,
+                        square,
+                        PieceType::Rook,
+                        &attack_data,
+                    );
+                }
+                PieceType::Queen => {
+                    self.generate_orthogonal_moves(
+                        board,
+                        &mut moves,
+                        square,
+                        PieceType::Queen,
+                        &attack_data,
+                    );
+                    self.generate_diagonal_moves(
+                        board,
+                        &mut moves,
+                        square,
+                        PieceType::Queen,
+                        &attack_data,
+                    );
+                }
+                PieceType::King => friendly_king_square = square,
+                PieceType::Empty => {}
             }
         }
 
@@ -168,8 +166,6 @@ impl MoveGenerator {
 
         // Game ended
         if moves.is_empty() {
-            // println!("The attack bb is {}", attack_data.attack_bb);
-            // print_board(Color::White, 0, PieceType::Empty, attack_data.attack_bb);
             let winner =
                 if attack_data.defenders_bb == u64::MAX && attack_data.attack_bb == u64::MAX {
                     WINNER_DRAW
