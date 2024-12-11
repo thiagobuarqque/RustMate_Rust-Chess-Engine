@@ -686,6 +686,8 @@ impl Board {
         }
         result.push_str(format!("  a b c d e f g h\n").as_str());
 
+        println!("{}", result);
+
         result
     }
 }

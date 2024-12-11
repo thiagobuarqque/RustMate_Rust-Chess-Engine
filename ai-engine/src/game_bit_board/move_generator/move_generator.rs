@@ -207,7 +207,7 @@ impl MoveGenerator {
         attack_data: &AttackData,
     ) {
         let raw_attacks =
-            self.get_diagonal_attacks(board, self.side_to_move, square, &self.friendly_pieces_bb);
+            self.get_diagonal_attacks(square);
 
         let attacks = raw_attacks
             & !self.friendly_pieces_bb
@@ -217,16 +217,11 @@ impl MoveGenerator {
         self.create_moves(attacks, moves, square, piece_type);
     }
 
-    /// This method is one of the two that I am not using `friendly_pieces_bb`
-    /// and `opponent_pieces_bb` I have in this struct. I am lazy to
-    /// work-around that now
-    pub fn get_diagonal_attacks(
-        &self, board: &Board, color: Color, square: usize, friendly_pieces_bb: &u64,
-    ) -> u64 {
-        let opponent_pieces_bb = board.get_player_pieces_positions(color.opponent());
+    pub fn get_diagonal_attacks(&self, square: usize) -> u64 {
+        //let opponent_pieces_bb = board.get_player_pieces_positions(color.opponent());
 
         let occupied_relevant_squares =
-            (friendly_pieces_bb | opponent_pieces_bb) & BISHOP_RELEVANT_SQUARES[square];
+            (self.friendly_pieces_bb | self.opponent_pieces_bb) & BISHOP_RELEVANT_SQUARES[square];
 
         let hash = (occupied_relevant_squares.wrapping_mul(BISHOP_MAGICS[square])
             >> BISHOP_SHIFTS[square]) as usize;
@@ -241,7 +236,7 @@ impl MoveGenerator {
         attack_data: &AttackData,
     ) {
         let raw_attacks =
-            self.get_orthogonal_attacks(board, self.side_to_move, square, &self.friendly_pieces_bb);
+            self.get_orthogonal_attacks(square);
 
         let attacks = raw_attacks
             & !self.friendly_pieces_bb
@@ -251,15 +246,11 @@ impl MoveGenerator {
         self.create_moves(attacks, moves, square, piece_type);
     }
 
-    /// This method is one of the two that I am not using `friendly_pieces_bb`
-    /// and `opponent_pieces_bb` I have in this struct. I am lazy to
-    /// work-around that now
     pub fn get_orthogonal_attacks(
-        &self, board: &Board, color: Color, square: usize, friendly_pieces_bb: &u64,
-    ) -> u64 {
-        let opponent_pieces_bb = board.get_player_pieces_positions(color.opponent());
+        &self, square: usize) -> u64 {
+        //let opponent_pieces_bb = board.get_player_pieces_positions(color.opponent());
         let occupied_relevant_squares =
-            (friendly_pieces_bb | opponent_pieces_bb) & ROOK_RELEVANT_SQUARES[square];
+            (self.friendly_pieces_bb | self.opponent_pieces_bb) & ROOK_RELEVANT_SQUARES[square];
 
         let hash = (occupied_relevant_squares.wrapping_mul(ROOK_MAGICS[square])
             >> ROOK_SHIFTS[square]) as usize;

@@ -1,7 +1,7 @@
 use crate::game_bit_board::{
     board::Board,
     enums::{Color, PieceType},
-    positions::{same_anti_diagonal, same_diagonal, same_file, same_rank},
+    positions::{same_anti_diagonal, same_diagonal, same_file, same_rank, Squares},
     utils::bitwise_utils::{get_direction_fn_to_square, pop_lsb, to_bitboard_position},
 };
 
@@ -143,6 +143,9 @@ impl AttackData {
             while attackers != 0 {
                 let attacker_square = pop_lsb(&mut attackers);
 
+                if (attacker_square as usize == Squares::E2) {
+                    println!("Knight is attacking from E2");
+                }
                 self.attack_bb |= to_bitboard_position(attacker_square as u64);
             }
         }
@@ -184,6 +187,10 @@ impl AttackData {
                 self.in_double_check = self.in_check;
                 self.in_check = true;
 
+                if (attacker_square == Squares::E2) {
+                    println!("Pawn is attacking from E2");
+                }
+
                 self.attack_bb |= to_bitboard_position(attacker_square as u64);
             }
 
@@ -212,13 +219,10 @@ impl AttackData {
 
             if piece_type == PieceType::Queen {
                 attacks |= move_generator.get_orthogonal_attacks(
-                    board,
-                    opponent,
                     square,
-                    &opponent_pieces,
                 );
                 attacks |=
-                    move_generator.get_diagonal_attacks(board, opponent, square, &opponent_pieces);
+                    move_generator.get_diagonal_attacks(square);
 
                 self.king_allowed_squares &= !attacks;
 
@@ -227,10 +231,7 @@ impl AttackData {
                 }
             } else if piece_type == PieceType::Rook {
                 attacks |= move_generator.get_orthogonal_attacks(
-                    board,
-                    opponent,
                     square,
-                    &opponent_pieces,
                 );
 
                 self.king_allowed_squares &= !attacks;
@@ -240,7 +241,7 @@ impl AttackData {
                 }
             } else if piece_type == PieceType::Bishop {
                 attacks |=
-                    move_generator.get_diagonal_attacks(board, opponent, square, &opponent_pieces);
+                    move_generator.get_diagonal_attacks(square);
 
                 self.king_allowed_squares &= !attacks;
 
@@ -251,6 +252,9 @@ impl AttackData {
 
             if attacks & self.king_bb_position != 0 {
                 self.handle_sliding_piece_check(square);
+                if (square == Squares::E2) {
+                    println!("Sliding is attacking from E2. {piece_type}");
+                }
             } else {
                 self.check_for_pins(board, square);
             }
@@ -335,7 +339,7 @@ mod attack_data_tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::game_bit_board::{board::Board, move_generator::move_generator::MoveGenerator};
+    use crate::game_bit_board::{board::Board, enums::{Color, PieceType}, move_generator::{move_generator::MoveGenerator, utils::print_board}};
 
     use super::AttackData;
 
@@ -372,7 +376,7 @@ mod attack_data_tests {
 
     #[test]
     fn test_in_double_check() {
-        let move_generator = MOVE_GENERATOR.lock().unwrap();
+        let mut move_generator = MOVE_GENERATOR.lock().unwrap();
 
         let mut attack_data = AttackData::new();
 
@@ -399,6 +403,10 @@ mod attack_data_tests {
         assert_eq!(0, attack_data.defenders_bb);
 
         board = Board::from_fen("rnbqkbnr/pp3ppp/3N4/2p5/B7/3Ppp2/PPP1QPPP/R1B1K2R b KQkq - 0 1");
+
+        // This is done inside the move_generator itself, but since this test scenario does not
+        // need to generate moves, I am calling it manually.
+        move_generator.init(&mut board);
 
         // 8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
         // 7 ♟ ♟ . . . ♟ ♟ ♟
