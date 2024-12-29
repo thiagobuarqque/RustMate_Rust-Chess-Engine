@@ -16,7 +16,8 @@ pub struct RawMoveGenerator {}
 impl RawMoveGenerator {
     pub fn new() -> Self { RawMoveGenerator {} }
 
-    // Borrowed from Sebastian Lague https://youtu.be/_vqlIPDR2TU?feature=shared&t=1902
+    // Borrowed from Sebastian Lague
+    // https://youtu.be/_vqlIPDR2TU?feature=shared&t=1902
     fn get_blockers_bitboards(bb_moves: u64) -> Vec<u64> {
         let mut square_indices = Vec::new();
 
@@ -45,7 +46,6 @@ impl RawMoveGenerator {
     fn create_lookup_table(
         generate: &dyn Fn(u64, u64, u64) -> u64, relevant_squares: &[u64; 64],
     ) -> HashMap<(u8, u64), u64> {
-        // TODO: use the magic number approach instead of a Hash Map
         let mut lookup_table = HashMap::new();
 
         for square in 0..=63 {

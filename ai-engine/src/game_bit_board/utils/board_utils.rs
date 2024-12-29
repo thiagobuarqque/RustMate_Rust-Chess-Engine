@@ -22,6 +22,7 @@ pub const PIECE_INDEXES: [usize; 6] = [
     ROOKS_IDX,
 ];
 
+#[inline(always)]
 pub fn get_color_index(color: Color) -> usize {
     match color {
         Color::White => WHITE_IDX,
@@ -29,6 +30,7 @@ pub fn get_color_index(color: Color) -> usize {
     }
 }
 
+#[inline(always)]
 pub fn get_piece_type_index(piece_type: PieceType) -> usize {
     match piece_type {
         PieceType::Bishop => BISHOPS_IDX,
@@ -41,6 +43,7 @@ pub fn get_piece_type_index(piece_type: PieceType) -> usize {
     }
 }
 
+#[inline(always)]
 pub fn get_piece_type_from_index(index: usize) -> PieceType {
     match index {
         BISHOPS_IDX => PieceType::Bishop,
@@ -59,14 +62,14 @@ pub enum Side {
     QueenSide,
 }
 
+#[inline(always)]
 pub fn get_castling_right_flag(color: Color, side: Side) -> u8 {
-    let castling_right = match (color, side) {
+    match (color, side) {
         (Color::White, Side::KingSide) => Board::WHITE_KING_SIDE_CASTLING_RIGHT,
         (Color::White, Side::QueenSide) => Board::WHITE_QUEEN_SIDE_CASTLING_RIGHT,
         (Color::Black, Side::KingSide) => Board::BLACK_KING_SIDE_CASTLING_RIGHT,
         (Color::Black, Side::QueenSide) => Board::BLACK_QUEEN_SIDE_CASTLING_RIGHT,
-    };
-    castling_right
+    }
 }
 
 #[cfg(test)]

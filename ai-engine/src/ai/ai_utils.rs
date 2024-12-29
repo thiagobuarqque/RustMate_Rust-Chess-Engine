@@ -197,20 +197,16 @@ fn calculate_end_game_weight(board: &mut Board) -> f32 {
 }
 
 pub fn get_board_value(board: &mut Board, color: f32) -> f32 {
-  _get_board_value(board, color, false)
+  _get_board_value(board, color)
 }
 
-pub fn _get_board_value(board: &mut Board, color: f32, log: bool) -> f32 {
-    let mut logs = String::new();
-
+pub fn _get_board_value(board: &mut Board, color: f32) -> f32 {
     if board.is_game_finished() && board.get_winner() == WINNER_DRAW {
-        logs.push_str("Game has finished with Draw");
         // Draw
         return 0.0;
     } 
     
     if board.is_game_finished() {
-        logs.push_str(format!("Game has finished. {} won", board.get_winner()).as_str());
         return f32::MAX;
     }
 
@@ -266,8 +262,6 @@ pub fn _get_board_value(board: &mut Board, color: f32, log: bool) -> f32 {
 
         pst_score += pst_value * factor;
 
-        logs.push_str(format!("{piece_type} at position {square} is worth: {pst_value} * {factor}\n").as_str());
-
         match piece_type {
             PieceType::Queen => q += factor,
             PieceType::Rook => r += factor,
@@ -296,23 +290,10 @@ pub fn _get_board_value(board: &mut Board, color: f32, log: bool) -> f32 {
         // m += piece.get_moves_reference().len() as f32 * factor;
     }
 
-    let score = (QUEEN_WORTH * q) + (ROOK_WORTH * r) + (BISHOP_WORTH * (b + n)) + (PAWN_WORTH * p)
+    return (QUEEN_WORTH * q) + (ROOK_WORTH * r) + (BISHOP_WORTH * (b + n)) + (PAWN_WORTH * p)
         - ((d + s + i) / 2.0)
         + (m / 10.0)
         + pst_score;
-
-    logs.push_str(
-      format!("(QUEEN_WORTH * {q}) + (ROOK_WORTH * {r}) + (BISHOP_WORTH * ({b} + {n})) + (PAWN_WORTH * {p}) - (({d} + {s} + {i}) / 2.0) + ({m} / 10.0) + {pst_score} = {score}").as_str()
-    );
-
-    if log {
-      match append_to_file("./logs.txt", &logs) {
-        Ok(_) => {},
-        Err(_) => {println!("Failed to write to log file")}
-      }
-    }
-
-    score
 }
 
 // pub fn is_isolated_pawn(board_state: &BoardState, position: i8, white_piece: bool) -> bool {

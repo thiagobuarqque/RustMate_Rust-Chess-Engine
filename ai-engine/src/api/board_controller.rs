@@ -122,7 +122,7 @@ pub fn get_board_response(
         .map(|capture| capture.to_fen(Color::Black))
         .collect::<Vec<String>>();
 
-    let board_evaluation = _get_board_value(board, 1.0, true);
+    let board_evaluation = _get_board_value(board, 1.0);
 
     HttpResponse::Ok().json(json!({
         "blackCaptures": black_captures,

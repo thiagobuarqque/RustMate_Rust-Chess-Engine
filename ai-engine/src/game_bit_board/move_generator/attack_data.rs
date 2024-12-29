@@ -143,9 +143,6 @@ impl AttackData {
             while attackers != 0 {
                 let attacker_square = pop_lsb(&mut attackers);
 
-                if (attacker_square as usize == Squares::E2) {
-                    println!("Knight is attacking from E2");
-                }
                 self.attack_bb |= to_bitboard_position(attacker_square as u64);
             }
         }
