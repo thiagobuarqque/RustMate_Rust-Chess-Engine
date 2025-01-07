@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::game_bit_board::{
     enums::{Color, PieceType},
-    utils::utils::get_piece_letter,
+    utils::utils::{get_piece_letter, get_piece_symbol},
 };
 
 use super::move_contants::*;
@@ -194,7 +194,7 @@ impl Move {
         format!("{}{}{}", from_square, to_square, promotion)
     }
 
-    pub fn to_algebraic_notation(&self) -> String {
+    pub fn to_algebraic_notation(&self, use_symbol: bool) -> String {
         let from_square = self.decode_square((self._move >> 6) & 0x3F);
         let to_square = self.decode_square(self._move & 0x3F);
         let move_flags = self.get_flags() & 0xF;
@@ -209,7 +209,11 @@ impl Move {
         // Piece type
         let piece = match self.piece_type {
             PieceType::Pawn => "".to_string(),
-            _ => get_piece_letter(self.color, &self.piece_type),
+            _ => if !use_symbol {
+                get_piece_letter(self.color, &self.piece_type)
+            } else {
+                get_piece_symbol(self.color, self.piece_type)
+            },
         };
 
         // Captures

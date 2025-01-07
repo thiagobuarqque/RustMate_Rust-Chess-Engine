@@ -27,7 +27,7 @@ impl AIPlayer {
        } 
     }
 
-    pub fn get_ai_move(&mut self, board: &mut Board, move_generator: &mut MoveGenerator) -> (u128, u8, f32, Option<Move>) {
+    pub fn get_ai_move(&mut self, board: &mut Board, move_generator: &mut MoveGenerator) -> (u128, u8, f32, u64, Option<Move>) {
         self.start_time = Instant::now();
 
         let mut depth = 5;
@@ -54,7 +54,7 @@ impl AIPlayer {
                  self.transposition_table.get_hits(), best_move.get_move_worth());
         }
 
-        (self.start_time.elapsed().as_millis(), depth, value, best_move)
+        (self.start_time.elapsed().as_millis(), depth, value, self.states, best_move)
     }
 
     fn negamax(

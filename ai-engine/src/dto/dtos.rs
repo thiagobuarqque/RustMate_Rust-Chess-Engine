@@ -41,7 +41,7 @@ impl MoveDTO {
             flags: _move.get_flags(),
             from: _move.get_from(),
             to: _move.get_to(),
-            notation: _move.to_algebraic_notation()
+            notation: _move.to_algebraic_notation(true)
         }
     }
 }

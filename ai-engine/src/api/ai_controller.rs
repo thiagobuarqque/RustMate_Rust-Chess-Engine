@@ -29,7 +29,7 @@ pub async fn ai_move(
 
     let mut ai_player = AIPlayer::new(3);
 
-    let (duration, depth, evaluation, mut _move) =
+    let (duration, depth, evaluation, nodes_searched, mut _move) =
         ai_player.get_ai_move(&mut board, &mut move_generator);
 
     if _move.is_some() {
@@ -37,9 +37,11 @@ pub async fn ai_move(
     }
 
     HttpResponse::Ok().json(json!({
+        "aiMove": if _move.is_none() { None } else {Some(MoveDTO::from_move(&_move.unwrap()))},
         "depth": depth,
         "duration": duration,
         "evaluation": evaluation,
-        "aiMove": if _move.is_none() { None } else {Some(MoveDTO::from_move(&_move.unwrap()))}
+        "nodes_searched": nodes_searched,
+        "zobrist": board.get_zobrist_hash(),
     }))
 }

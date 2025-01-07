@@ -249,9 +249,6 @@ impl AttackData {
 
             if attacks & self.king_bb_position != 0 {
                 self.handle_sliding_piece_check(square);
-                if (square == Squares::E2) {
-                    println!("Sliding is attacking from E2. {piece_type}");
-                }
             } else {
                 self.check_for_pins(board, square);
             }
