@@ -206,8 +206,7 @@ impl MoveGenerator {
         &self, board: &Board, moves: &mut Vec<Move>, square: usize, piece_type: PieceType,
         attack_data: &AttackData,
     ) {
-        let raw_attacks =
-            self.get_diagonal_attacks(square);
+        let raw_attacks = self.get_diagonal_attacks(square);
 
         let attacks = raw_attacks
             & !self.friendly_pieces_bb
@@ -235,8 +234,7 @@ impl MoveGenerator {
         &self, board: &Board, moves: &mut Vec<Move>, square: usize, piece_type: PieceType,
         attack_data: &AttackData,
     ) {
-        let raw_attacks =
-            self.get_orthogonal_attacks(square);
+        let raw_attacks = self.get_orthogonal_attacks(square);
 
         let attacks = raw_attacks
             & !self.friendly_pieces_bb
@@ -246,8 +244,7 @@ impl MoveGenerator {
         self.create_moves(attacks, moves, square, piece_type);
     }
 
-    pub fn get_orthogonal_attacks(
-        &self, square: usize) -> u64 {
+    pub fn get_orthogonal_attacks(&self, square: usize) -> u64 {
         //let opponent_pieces_bb = board.get_player_pieces_positions(color.opponent());
         let occupied_relevant_squares =
             (self.friendly_pieces_bb | self.opponent_pieces_bb) & ROOK_RELEVANT_SQUARES[square];

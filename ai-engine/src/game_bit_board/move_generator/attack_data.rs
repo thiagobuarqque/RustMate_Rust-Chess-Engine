@@ -215,11 +215,8 @@ impl AttackData {
                 || same_anti_diagonal(square, self.king_square);
 
             if piece_type == PieceType::Queen {
-                attacks |= move_generator.get_orthogonal_attacks(
-                    square,
-                );
-                attacks |=
-                    move_generator.get_diagonal_attacks(square);
+                attacks |= move_generator.get_orthogonal_attacks(square);
+                attacks |= move_generator.get_diagonal_attacks(square);
 
                 self.king_allowed_squares &= !attacks;
 
@@ -227,9 +224,7 @@ impl AttackData {
                     continue;
                 }
             } else if piece_type == PieceType::Rook {
-                attacks |= move_generator.get_orthogonal_attacks(
-                    square,
-                );
+                attacks |= move_generator.get_orthogonal_attacks(square);
 
                 self.king_allowed_squares &= !attacks;
 
@@ -237,8 +232,7 @@ impl AttackData {
                     continue;
                 }
             } else if piece_type == PieceType::Bishop {
-                attacks |=
-                    move_generator.get_diagonal_attacks(square);
+                attacks |= move_generator.get_diagonal_attacks(square);
 
                 self.king_allowed_squares &= !attacks;
 
@@ -333,7 +327,11 @@ mod attack_data_tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::game_bit_board::{board::Board, enums::{Color, PieceType}, move_generator::{move_generator::MoveGenerator, utils::print_board}};
+    use crate::game_bit_board::{
+        board::Board,
+        enums::{Color, PieceType},
+        move_generator::{move_generator::MoveGenerator, utils::print_board},
+    };
 
     use super::AttackData;
 
@@ -398,8 +396,8 @@ mod attack_data_tests {
 
         board = Board::from_fen("rnbqkbnr/pp3ppp/3N4/2p5/B7/3Ppp2/PPP1QPPP/R1B1K2R b KQkq - 0 1");
 
-        // This is done inside the move_generator itself, but since this test scenario does not
-        // need to generate moves, I am calling it manually.
+        // This is done inside the move_generator itself, but since this test scenario
+        // does not need to generate moves, I am calling it manually.
         move_generator.init(&mut board);
 
         // 8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
