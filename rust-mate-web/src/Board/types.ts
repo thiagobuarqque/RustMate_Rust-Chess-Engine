@@ -2,8 +2,12 @@ export type AIResponse = {
   "depth": number,
   "duration": number,
   "evaluation": number,
-  "aiMove": TMove
+  "aiMove": TMove,
+  "nodes_searched": number,
+  "zobrist": number
 };
+
+export type TWinner = "-" | "Black" | "White" | "Draw";
 
 export type TBoard = {
   blackCaptures: string[];
@@ -15,7 +19,7 @@ export type TBoard = {
   whiteCaptures: string[];
   whiteKingInCheck: boolean;
   siteToMove: TColor;
-  winner: "-" | "Black" | "White" | "Draw";
+  winner: TWinner;
   zobrit: number;
   movesHistory: TMove[]
 };
