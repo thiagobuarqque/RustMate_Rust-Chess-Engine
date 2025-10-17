@@ -4,6 +4,12 @@
 
 A Chess engine implemented in Rust. I started this project to learn Rust and get more familiar with more advanced AI, heuristic, and search techniques for adversarial games.
 
+## How to play
+
+1. Install rust https://rust-lang.org/tools/install/
+2. `cd ai-engine && cargo run -r`
+3. `cd rust-mate-web && npm install && npm run dev`
+
 ### Prints
 
 ![Game Preview](./files/game-1.png)
