@@ -16,7 +16,7 @@ function App() {
     whiteCaptures: [],
     pieces: [],
     whiteKingInCheck: false,
-    siteToMove: TColor.White,
+    sideToMove: TColor.White,
     winner: "-",
     movesHistory: [],
     zobrit: 0,
@@ -56,7 +56,7 @@ function App() {
 
   return (
     <div id="content-wrapper">
-      {/* <Timer sideToMove={board.siteToMove} timeRunning={board.winner === '-' && !timeIsUp} setTimeIsUp={setTimeIsUp} /> */}
+      {/* <Timer sideToMove={board.sideToMove} timeRunning={board.winner === '-' && !timeIsUp} setTimeIsUp={setTimeIsUp} /> */}
       <Board
         board={board}
         setBoard={setBoard}

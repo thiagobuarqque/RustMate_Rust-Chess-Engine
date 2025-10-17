@@ -18,7 +18,7 @@ export type TBoard = {
   pieces: TPiece[];
   whiteCaptures: string[];
   whiteKingInCheck: boolean;
-  siteToMove: TColor;
+  sideToMove: TColor;
   winner: TWinner;
   zobrit: number;
   movesHistory: TMove[]

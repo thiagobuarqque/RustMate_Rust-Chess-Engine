@@ -47,7 +47,7 @@ const Board: React.FC<IProps> = ({ board, setBoard, setLastAIResponse }) => {
       return;
     }
 
-    if (board.siteToMove !== piece.color) {
+    if (board.sideToMove !== piece.color) {
       alert("LOG: It's not your turn");
       // Play invalid move sound
       return;

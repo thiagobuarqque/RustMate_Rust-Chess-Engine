@@ -130,7 +130,7 @@ pub fn get_board_response(
         "blackKingInCheck": false,
         "fen": fen,
         "whiteCaptures": white_captures,
-        "siteToMove": side_to_move,
+        "sideToMove": side_to_move,
         "winner": board.get_winner(),
         "zobrit": zobrist,
         "pieces": pieces,
