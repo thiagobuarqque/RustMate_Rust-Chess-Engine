@@ -1,7 +1,7 @@
 use core::f32;
 use std::time::{Duration, Instant};
 
-use crate::{ai::tree_node::TreeNode, constants::constants::WINNER_DRAW, game_bit_board::{_move::_move::Move, board::Board, enums::{Color, PieceType}, move_generator::move_generator::MoveGenerator}};
+use crate::{constants::constants::WINNER_DRAW, game_bit_board::{_move::_move::Move, board::Board, enums::{Color, PieceType}, move_generator::move_generator::MoveGenerator}};
 
 use super::{
     ai_utils::{get_board_value, get_sorted_moves},

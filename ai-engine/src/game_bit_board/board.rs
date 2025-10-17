@@ -96,10 +96,6 @@ impl Board {
     }
 
     pub fn from_fen(fen: &str) -> Self {
-        // if parts.len() != 6 {
-        //     panic!("Invalid FEN string.");
-        // }
-
         let mut board = Board::empty();
 
         board.reset();
