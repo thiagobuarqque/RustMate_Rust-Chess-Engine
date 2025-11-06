@@ -225,9 +225,7 @@ impl MoveGenerator {
         let hash = (occupied_relevant_squares.wrapping_mul(BISHOP_MAGICS[square])
             >> BISHOP_SHIFTS[square]) as usize;
 
-        let attacks = self.bishop_lookup_table[square][hash];
-
-        attacks
+        self.bishop_lookup_table[square][hash]
     }
 
     fn generate_orthogonal_moves(
@@ -245,16 +243,13 @@ impl MoveGenerator {
     }
 
     pub fn get_orthogonal_attacks(&self, square: usize) -> u64 {
-        //let opponent_pieces_bb = board.get_player_pieces_positions(color.opponent());
         let occupied_relevant_squares =
             (self.friendly_pieces_bb | self.opponent_pieces_bb) & ROOK_RELEVANT_SQUARES[square];
 
         let hash = (occupied_relevant_squares.wrapping_mul(ROOK_MAGICS[square])
             >> ROOK_SHIFTS[square]) as usize;
 
-        let attacks = self.rook_lookup_table[square][hash];
-
-        attacks
+        self.rook_lookup_table[square][hash]
     }
 
     fn generate_knight_moves(

@@ -561,7 +561,7 @@ impl Board {
             return Color::White;
         }
 
-        return Color::Black;
+        Color::Black
     }
 
     pub fn get_piece_type(&self, square: usize) -> PieceType {
