@@ -40,7 +40,7 @@ fn _count_moves(
         let key = (board.get_zobrist_hash(), new_depth);
 
         let moves_count = if lookup_table.contains_key(&key) {
-            lookup_table.get(&key).unwrap().clone()
+            *lookup_table.get(&key).unwrap()
         } else {
             _count_moves(board, new_depth, false, move_generator, lookup_table)
         };

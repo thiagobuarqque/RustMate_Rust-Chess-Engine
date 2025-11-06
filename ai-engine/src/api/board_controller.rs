@@ -69,12 +69,12 @@ pub async fn move_piece(
         }));
     }
 
-    let mut _move = (*moves.first().unwrap()).clone();
+    let mut _move = *(*moves.first().unwrap());
 
     if moves.len() > 1 {
         for _move2 in moves {
             if _move2.get_flags() == _move1.flags {
-                _move = _move2.clone();
+                _move = *_move2;
                 break;
             }
         }

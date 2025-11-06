@@ -315,7 +315,7 @@ impl Board {
         _move.black_king_moved = self.black_king_moved;
         _move.white_king_moved = self.white_king_moved;
         _move.zobrist_hash = self.zobrist.get_hash();
-        self.moves_history.push(_move.clone());
+        self.moves_history.push(*_move);
     }
 
     pub fn unmake_last_move(&mut self) {
@@ -323,7 +323,7 @@ impl Board {
             panic!("Can't make unmove");
         }
 
-        let mut _move = self.moves_history.last().unwrap().clone();
+        let mut _move = *self.moves_history.last().unwrap();
 
         self.unmake_move(&mut _move);
     }
@@ -640,7 +640,7 @@ impl Board {
         if self.en_passant_bb_position == 0 {
             fen.push('-');
         } else {
-            let mut pos = self.en_passant_bb_position.clone();
+            let mut pos = self.en_passant_bb_position;
             fen.push_str(&square_to_algebraic(pop_lsb(&mut pos) as usize));
         }
 

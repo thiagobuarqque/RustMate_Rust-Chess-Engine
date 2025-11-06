@@ -110,7 +110,7 @@ pub fn squares_between(sq1: usize, sq2: usize) -> u64 {
 pub fn get_closest_square(base_square: usize, pieces: u64) -> usize {
     let mut closest_square = usize::MAX;
 
-    let mut pieces = pieces.clone();
+    let mut pieces = pieces;
 
     while pieces != 0 {
         let square = pop_lsb(&mut pieces) as usize;

@@ -96,7 +96,7 @@ impl MoveGenerator {
 
         let mut friendly_king_square = usize::MAX;
 
-        let mut friendly_pieces = self.friendly_pieces_bb.clone();
+        let mut friendly_pieces = self.friendly_pieces_bb;
 
         while friendly_pieces != 0 {
             let square: usize = pop_lsb(&mut friendly_pieces) as usize;
@@ -1083,7 +1083,7 @@ mod tests {
         let mut white_knight_to_c3 =
             Move::from_to(Squares::B1, Squares::C3, Color::White, PieceType::Knight);
 
-        expected_moves.push(white_knight_to_c3.clone());
+        expected_moves.push(white_knight_to_c3);
         expected_moves.push(Move::from_to(
             Squares::B1,
             Squares::A3,
@@ -1106,7 +1106,7 @@ mod tests {
 
         expected_moves = Vec::new();
 
-        expected_moves.push(white_knight_to_d5.clone());
+        expected_moves.push(white_knight_to_d5);
 
         assert_available_moves(&mut board, expected_moves, Vec::new());
     }
@@ -1128,7 +1128,7 @@ mod tests {
         white_pawn_to_d4.set_en_passant_bb_position(BBPositions::D3);
         white_pawn_to_d4.set_en_passant_bb_piece_square(BBPositions::D4);
 
-        expected_moves.push(white_pawn_to_d4.clone());
+        expected_moves.push(white_pawn_to_d4);
 
         assert_available_moves(&mut board, expected_moves, Vec::new());
 
@@ -1147,7 +1147,7 @@ mod tests {
         black_pawn_to_e5.set_en_passant_bb_position(BBPositions::E6);
         black_pawn_to_e5.set_en_passant_bb_piece_square(BBPositions::E5);
 
-        expected_moves.push(black_pawn_to_e5.clone());
+        expected_moves.push(black_pawn_to_e5);
 
         board.move_piece(&mut black_pawn_to_e5);
 
@@ -1210,7 +1210,7 @@ mod tests {
         black_double_push.set_en_passant_bb_position(BBPositions::E6);
         black_double_push.set_en_passant_bb_piece_square(BBPositions::E5);
 
-        expected_moves.push(black_double_push.clone());
+        expected_moves.push(black_double_push);
 
         assert_available_moves(&mut board, expected_moves, Vec::new());
 

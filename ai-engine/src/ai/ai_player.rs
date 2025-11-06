@@ -116,7 +116,7 @@ impl AIPlayer {
 
             if result > value {
                 value = result;
-                best_move = Some(_move.clone());
+                best_move = Some(*_move);
             }
 
             board.unmake_last_move();
