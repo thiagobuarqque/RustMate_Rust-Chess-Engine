@@ -110,7 +110,6 @@ impl MoveGenerator {
                 }
                 PieceType::Bishop => {
                     self.generate_diagonal_moves(
-                        board,
                         &mut moves,
                         square,
                         PieceType::Bishop,
@@ -119,7 +118,6 @@ impl MoveGenerator {
                 }
                 PieceType::Rook => {
                     self.generate_orthogonal_moves(
-                        board,
                         &mut moves,
                         square,
                         PieceType::Rook,
@@ -128,14 +126,12 @@ impl MoveGenerator {
                 }
                 PieceType::Queen => {
                     self.generate_orthogonal_moves(
-                        board,
                         &mut moves,
                         square,
                         PieceType::Queen,
                         &attack_data,
                     );
                     self.generate_diagonal_moves(
-                        board,
                         &mut moves,
                         square,
                         PieceType::Queen,
@@ -203,7 +199,7 @@ impl MoveGenerator {
     }
 
     fn generate_diagonal_moves(
-        &self, board: &Board, moves: &mut Vec<Move>, square: usize, piece_type: PieceType,
+        &self, moves: &mut Vec<Move>, square: usize, piece_type: PieceType,
         attack_data: &AttackData,
     ) {
         let raw_attacks = self.get_diagonal_attacks(square);
@@ -229,7 +225,7 @@ impl MoveGenerator {
     }
 
     fn generate_orthogonal_moves(
-        &self, board: &Board, moves: &mut Vec<Move>, square: usize, piece_type: PieceType,
+        &self, moves: &mut Vec<Move>, square: usize, piece_type: PieceType,
         attack_data: &AttackData,
     ) {
         let raw_attacks = self.get_orthogonal_attacks(square);
