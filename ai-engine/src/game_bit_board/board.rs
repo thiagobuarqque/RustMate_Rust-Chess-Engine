@@ -183,7 +183,7 @@ impl Board {
 
         let mut zobrist = board.zobrist.clone();
 
-        zobrist.compute_hash(&board);
+        zobrist.compute_hash(board);
 
         board.zobrist = zobrist;
     }
@@ -598,7 +598,7 @@ impl Board {
                     }
                     let color = self.get_piece_color(square);
 
-                    fen.push_str(&get_piece_letter(color, &piece_type).as_str());
+                    fen.push_str(get_piece_letter(color, &piece_type).as_str());
                 }
             }
             if empty_squares > 0 {

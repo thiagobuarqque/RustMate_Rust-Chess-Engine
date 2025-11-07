@@ -34,12 +34,12 @@ pub async fn get_move_generation_count(
     data: web::Json<MovesCountDTO>, board: web::Data<Mutex<Board>>,
     move_generator: web::Data<Mutex<MoveGenerator>>,
 ) -> impl Responder {
-    let mut board = &mut board.lock().unwrap();
-    let mut move_generator = &mut move_generator.lock().unwrap();
+    let board = &mut board.lock().unwrap();
+    let move_generator = &mut move_generator.lock().unwrap();
 
     let start = Instant::now();
 
-    let nodes_searched = count_moves(&mut board, data.depth, false, &mut move_generator);
+    let nodes_searched = count_moves(board, data.depth, false, move_generator);
 
     HttpResponse::Ok().json(json!({
         "moves": nodes_searched,
