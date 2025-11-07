@@ -102,7 +102,9 @@ const DEBRUIJ_M: u64 = 0x03f7_9d71_b4cb_0a89;
 pub fn pop_lsb(bits: &mut u64) -> u8 {
     let bitss = *bits;
 
-    *bits &= *bits - 1;
+    if *bits > 0 {
+        *bits &= *bits - 1;
+    }
 
     DEBRUIJ_T[(((bitss ^ bitss.wrapping_sub(1)).wrapping_mul(DEBRUIJ_M)).wrapping_shr(58)) as usize]
 }
