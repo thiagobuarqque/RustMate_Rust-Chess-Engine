@@ -68,21 +68,21 @@ pub fn lower_bits(square: u64) -> u64 { (1 << square) - 1 }
 pub fn get_direction_name(f: fn(u64) -> u64) -> &'static str {
     let f = f as fn(u64) -> u64;
 
-    if f == east_one as fn(u64) -> u64 {
+    if std::ptr::fn_addr_eq(f, east_one as fn(u64) -> u64) {
         "east"
-    } else if f == no_ea_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, no_ea_one as fn(u64) -> u64) {
         "north east"
-    } else if f == so_ea_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, so_ea_one as fn(u64) -> u64) {
         "so east"
-    } else if f == west_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, west_one as fn(u64) -> u64) {
         "west"
-    } else if f == so_we_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, so_we_one as fn(u64) -> u64) {
         "so west"
-    } else if f == no_we_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, no_we_one as fn(u64) -> u64) {
         "north west"
-    } else if f == south_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, south_one as fn(u64) -> u64) {
         "south"
-    } else if f == north_one as fn(u64) -> u64 {
+    } else if std::ptr::fn_addr_eq(f, north_one as fn(u64) -> u64) {
         "north"
     } else {
         "unkwnown direction"
