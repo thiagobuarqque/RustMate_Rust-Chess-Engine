@@ -1,4 +1,7 @@
-use crate::{constants::constants::INITIAL_FEN, game_bit_board::{board::Board, move_generator::move_generator::MoveGenerator}};
+use crate::{
+    constants::constants::INITIAL_FEN,
+    game_bit_board::{board::Board, move_generator::move_generator::MoveGenerator},
+};
 
 pub struct GlobalState {
     pub board: Board,

@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::game_bit_board::{_move::_move::Move, enums::{Color, PieceType}};
+use crate::game_bit_board::{
+    _move::_move::Move,
+    enums::{Color, PieceType},
+};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct FenDTO {
@@ -23,7 +26,7 @@ pub struct PieceDTO {
     fen: String,
     position: u64,
     r#type: PieceType,
-    moves: Vec<MoveDTO>
+    moves: Vec<MoveDTO>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -32,7 +35,7 @@ pub struct MoveDTO {
     pub flags: u16,
     pub from: usize,
     pub to: usize,
-    pub notation: String
+    pub notation: String,
 }
 
 impl MoveDTO {
@@ -41,7 +44,7 @@ impl MoveDTO {
             flags: _move.get_flags(),
             from: _move.get_from(),
             to: _move.get_to(),
-            notation: _move.to_algebraic_notation(true)
+            notation: _move.to_algebraic_notation(true),
         }
     }
 }

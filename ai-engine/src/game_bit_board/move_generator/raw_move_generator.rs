@@ -55,10 +55,8 @@ impl RawMoveGenerator {
             let blockers = RawMoveGenerator::get_blockers_bitboards(moves_bb);
 
             blockers.iter().for_each(|blocker_bb| {
-                lookup_table.insert(
-                    (square as u8, *blocker_bb),
-                    generate(*blocker_bb, 0, position),
-                );
+                lookup_table
+                    .insert((square as u8, *blocker_bb), generate(*blocker_bb, 0, position));
             });
         }
 
@@ -391,11 +389,7 @@ mod tests {
     ) {
         let table = RawMoveGenerator::create_lookup_table(generate, relevant_squares);
 
-        println!(
-            "{} look up table memory usage: {}KB\n",
-            piece_type,
-            memory_usage_in_kb(&table)
-        );
+        println!("{} look up table memory usage: {}KB\n", piece_type, memory_usage_in_kb(&table));
 
         let mut i = 0;
         for key in table.keys() {
@@ -406,12 +400,7 @@ mod tests {
                 break;
             }
 
-            print_board(
-                Color::White,
-                key.0.into(),
-                piece_type,
-                *table.get(key).unwrap(),
-            );
+            print_board(Color::White, key.0.into(), piece_type, *table.get(key).unwrap());
 
             println!("\nBlockers:\n");
 
@@ -433,12 +422,7 @@ mod tests {
 
         println!("Generated {}", blockes.len());
 
-        print_board(
-            Color::White,
-            28,
-            PieceType::Rook,
-            *blockes.get(1256).unwrap(),
-        )
+        print_board(Color::White, 28, PieceType::Rook, *blockes.get(1256).unwrap())
     }
 
     #[test]
@@ -474,19 +458,13 @@ mod tests {
 
         let mut moves = RawMoveGenerator::generate_queen_moves(0, 0, position);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 3, PieceType::Queen, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 3, PieceType::Queen, moves));
 
         assert_eq!(0x08080888492A1CF7, moves);
 
         moves = RawMoveGenerator::generate_queen_moves(0x1020000, 0x800, position);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 3, PieceType::Queen, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 3, PieceType::Queen, moves));
 
         assert_eq!(0x00000080402214F7, moves);
     }
@@ -496,28 +474,19 @@ mod tests {
         let position = BBPositions::C1;
         let mut moves = RawMoveGenerator::generate_bishop_moves(0, 0, position);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 2, PieceType::Bishop, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 2, PieceType::Bishop, moves));
 
         assert_eq!(0x0000804020110A00, moves);
 
         moves = RawMoveGenerator::generate_bishop_moves(0, 0x800, position);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 2, PieceType::Bishop, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 2, PieceType::Bishop, moves));
 
         assert_eq!(0x0000000000010200, moves);
 
         moves = RawMoveGenerator::generate_bishop_moves(0x800, 0, position);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 2, PieceType::Bishop, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 2, PieceType::Bishop, moves));
 
         assert_eq!(0x0000000000010A00, moves);
     }
@@ -536,10 +505,7 @@ mod tests {
 
         moves = RawMoveGenerator::generate_rook_moves(0, 0xFFFF000000000000, position);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 35, PieceType::Rook, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 35, PieceType::Rook, moves));
 
         assert_eq!(0x000008F708080808, moves);
 
@@ -548,9 +514,6 @@ mod tests {
 
         assert_eq!(0x000008F708080000, moves);
 
-        println!(
-            "{:?}",
-            print_board(Color::Black, 35, PieceType::Rook, moves)
-        );
+        println!("{:?}", print_board(Color::Black, 35, PieceType::Rook, moves));
     }
 }

@@ -241,12 +241,7 @@ mod tests {
         let mut bb_position =
             get_king_relevant_squares_related_to_enemy_pawns(Color::White, king_square);
 
-        print_board(
-            Color::White,
-            king_square as u64,
-            PieceType::King,
-            bb_position,
-        );
+        print_board(Color::White, king_square as u64, PieceType::King, bb_position);
 
         assert_eq!(0x0000000000FEFEEE, bb_position);
 
@@ -254,12 +249,7 @@ mod tests {
 
         bb_position = get_king_relevant_squares_related_to_enemy_pawns(Color::Black, king_square);
 
-        print_board(
-            Color::Black,
-            king_square as u64,
-            PieceType::King,
-            bb_position,
-        );
+        print_board(Color::Black, king_square as u64, PieceType::King, bb_position);
 
         assert_eq!(0xEEFEFE0000000000, bb_position);
     }

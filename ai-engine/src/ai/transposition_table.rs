@@ -1,19 +1,19 @@
 use std::collections::HashMap;
 
-use crate::game_bit_board::{_move::_move::Move};
+use crate::game_bit_board::_move::_move::Move;
 
 #[derive(Debug, PartialEq)]
 pub enum EntryFlag {
     Upperbound = 0,
     Lowerbound = 1,
-    Exact = 2
+    Exact = 2,
 }
 
 pub struct TranspositionTableEntry {
     pub depth: u8,
     pub value: f32,
     pub best_move: Option<Move>,
-    pub flag: EntryFlag
+    pub flag: EntryFlag,
 }
 
 impl TranspositionTableEntry {
@@ -43,9 +43,7 @@ impl TranspositionTable {
         self.table.insert(key, entry);
     }
 
-    pub fn len(&self) -> usize {
-        self.table.len()
-    }
+    pub fn len(&self) -> usize { self.table.len() }
 
     pub fn retrieve(&mut self, key: (u64, u8)) -> Option<&TranspositionTableEntry> {
         let entry = self.table.get(&key);
@@ -57,9 +55,7 @@ impl TranspositionTable {
         entry
     }
 
-    pub fn get_hits(&self) -> u64 {
-        self.hits
-    }
+    pub fn get_hits(&self) -> u64 { self.hits }
 
     pub fn estimated_memory_usage_kb(&self) -> usize {
         let entry_size = if let Some(entry) = self.table.values().next() {

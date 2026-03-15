@@ -1,7 +1,14 @@
-use core::f32;
 use std::time::{Duration, Instant};
 
-use crate::{constants::constants::WINNER_DRAW, game_bit_board::{_move::_move::Move, board::Board, enums::{Color, PieceType}, move_generator::move_generator::MoveGenerator}};
+use crate::{
+    constants::constants::WINNER_DRAW,
+    game_bit_board::{
+        _move::_move::Move,
+        board::Board,
+        enums::{Color, PieceType},
+        move_generator::move_generator::MoveGenerator,
+    },
+};
 
 use super::{
     ai_utils::{get_board_value, get_sorted_moves},
@@ -13,60 +20,57 @@ pub struct AIPlayer {
     time_to_think: u64,
     start_time: Instant,
     interruped: bool,
-    states: u64
+    states: u64,
 }
 
 impl AIPlayer {
-    pub fn new(time_to_think: u64) -> Self{
-       Self {
-        transposition_table: TranspositionTable::new(),
-        time_to_think,
-        start_time: Instant::now(),
-        interruped: false,
-        states: 0
-       } 
+    pub fn new(time_to_think: u64) -> Self {
+        Self {
+            transposition_table: TranspositionTable::new(),
+            time_to_think,
+            start_time: Instant::now(),
+            interruped: false,
+            states: 0,
+        }
     }
 
-    pub fn get_ai_move(&mut self, board: &mut Board, move_generator: &mut MoveGenerator) -> (u128, u8, f32, u64, Option<Move>) {
+    pub fn get_ai_move(
+        &mut self, board: &mut Board, move_generator: &mut MoveGenerator,
+    ) -> (u128, u8, f32, u64, Option<Move>) {
         self.start_time = Instant::now();
 
         let mut depth = 5;
 
-        let (value, best_move) = self.negamax(
-            board,
-            f32::MIN,
-            f32::MAX,
-            -1.0,
-            depth,
-            move_generator,
-        );
+        let (value, best_move) =
+            self.negamax(board, f32::MIN, f32::MAX, -1.0, depth, move_generator);
 
         if best_move.is_some() {
             let best_move = best_move.unwrap();
 
             println!(
                 "\nTransposition table size: ~{}kb. It got {} hits\n",
-                self.transposition_table.estimated_memory_usage_kb(), self.transposition_table.get_hits()
+                self.transposition_table.estimated_memory_usage_kb(),
+                self.transposition_table.get_hits()
             );
 
-            println!("Evaluated {} states in {}ms with depth of {} and {} hits in the table. Best move eval: {}",
-                 self.states, self.start_time.elapsed().as_millis(), depth,
-                 self.transposition_table.get_hits(), best_move.get_move_worth());
+            println!(
+                "Evaluated {} states in {}ms with depth of {} and {} table hits.",
+                self.states,
+                self.start_time.elapsed().as_millis(),
+                depth,
+                self.transposition_table.get_hits()
+            );
+
+            println!("Best move: {} with eval {}", best_move, best_move.get_move_worth());
         }
 
         (self.start_time.elapsed().as_millis(), depth, value, self.states, best_move)
     }
 
     fn negamax(
-        &mut self,
-        board: &mut Board,
-        mut alpha: f32,
-        mut beta: f32,
-        color: f32,
-        depth: u8,
+        &mut self, board: &mut Board, mut alpha: f32, mut beta: f32, color: f32, depth: u8,
         move_generator: &mut MoveGenerator,
     ) -> (f32, Option<Move>) {
-
         //if self._is_time_over() {
         //    self.interruped = true;
         //
@@ -88,10 +92,14 @@ impl AIPlayer {
             let value = get_board_value(board, color) * color;
 
             self.transposition_table.store(
-                key, 
+                key,
                 TranspositionTableEntry {
-                    depth, value, best_move: None, flag: EntryFlag::Exact
-                });
+                    depth,
+                    value,
+                    best_move: None,
+                    flag: EntryFlag::Exact,
+                },
+            );
 
             return (value, None);
         }
@@ -105,14 +113,9 @@ impl AIPlayer {
         for _move in moves.iter_mut() {
             board.move_piece(_move);
 
-            let result = -self.negamax(
-                board,
-                -beta,
-                -alpha,
-                -color,
-                depth - 1,
-                move_generator,
-            ).0;
+            let result = -self
+                .negamax(board, -beta, -alpha, -color, depth - 1, move_generator)
+                .0;
 
             if result > value {
                 value = result;
@@ -129,14 +132,17 @@ impl AIPlayer {
         }
 
         self.transposition_table.store(
-            key, 
+            key,
             TranspositionTableEntry {
-                depth, value, best_move, flag: EntryFlag::Exact
-            });
+                depth,
+                value,
+                best_move,
+                flag: EntryFlag::Exact,
+            },
+        );
 
         (value, best_move)
     }
-
 
     #[inline(always)]
     fn _is_time_over(&self) -> bool {

@@ -287,11 +287,8 @@ impl Board {
 
         self.bitboards[get_piece_type_index(piece_type)] |= bb_position;
 
-        self.zobrist.on_place_piece(
-            piece_type,
-            color,
-            pop_lsb(&mut bb_position.clone()) as usize,
-        );
+        self.zobrist
+            .on_place_piece(piece_type, color, pop_lsb(&mut bb_position.clone()) as usize);
     }
 
     /// This function assumes the piece exists
@@ -300,11 +297,8 @@ impl Board {
 
         self.bitboards[get_piece_type_index(piece_type)] ^= bb_position;
 
-        self.zobrist.on_remove_piece(
-            piece_type,
-            color,
-            pop_lsb(&mut bb_position.clone()) as usize,
-        );
+        self.zobrist
+            .on_remove_piece(piece_type, color, pop_lsb(&mut bb_position.clone()) as usize);
     }
 
     fn save_current_state(&mut self, _move: &mut Move) {
@@ -379,11 +373,7 @@ impl Board {
 
         if _move.is_en_passant() {
             // Remove the en passant enemy piece
-            self.remove_piece(
-                color.opponent(),
-                piece_type,
-                self.en_passant_piece_square_bb,
-            );
+            self.remove_piece(color.opponent(), piece_type, self.en_passant_piece_square_bb);
 
             if color.is_black() {
                 self.black_captures.push(PieceType::Pawn);
@@ -724,29 +714,20 @@ mod tests {
         board.remove_piece(Color::White, PieceType::Knight, BBPositions::G1);
         board.remove_piece(Color::White, PieceType::Bishop, BBPositions::F1);
 
-        assert_eq!(
-            0xF, board.castling_rights,
-            "Default castling rights should be available"
-        );
+        assert_eq!(0xF, board.castling_rights, "Default castling rights should be available");
 
         board.move_piece(&mut Move::dummy_from_to(Squares::A1, Squares::B1));
 
         board.display();
 
-        assert_eq!(
-            0,
-            board.castling_rights & Board::WHITE_QUEEN_SIDE_CASTLING_RIGHT
-        );
+        assert_eq!(0, board.castling_rights & Board::WHITE_QUEEN_SIDE_CASTLING_RIGHT);
 
         board.move_piece(&mut Move::dummy_from_to(Squares::H7, Squares::H6));
         board.move_piece(&mut Move::dummy_from_to(Squares::H1, Squares::G1));
 
         board.display();
 
-        assert_eq!(
-            0,
-            board.castling_rights & Board::WHITE_KING_SIDE_CASTLING_RIGHT
-        );
+        assert_eq!(0, board.castling_rights & Board::WHITE_KING_SIDE_CASTLING_RIGHT);
 
         assert_eq!(0, board.castling_rights & Board::WHITE_CASTLING_RIGHTS);
 
@@ -774,30 +755,21 @@ mod tests {
         board.remove_piece(Color::Black, PieceType::Bishop, BBPositions::F8);
         board.remove_piece(Color::Black, PieceType::Knight, BBPositions::G8);
 
-        assert_eq!(
-            0xF, board.castling_rights,
-            "Default castling rights should be available"
-        );
+        assert_eq!(0xF, board.castling_rights, "Default castling rights should be available");
 
         board.move_piece(&mut Move::dummy_from_to(Squares::A2, Squares::A3));
         board.move_piece(&mut Move::dummy_from_to(Squares::A8, Squares::B8));
 
         board.display();
 
-        assert_eq!(
-            0,
-            board.castling_rights & Board::BLACK_QUEEN_SIDE_CASTLING_RIGHT
-        );
+        assert_eq!(0, board.castling_rights & Board::BLACK_QUEEN_SIDE_CASTLING_RIGHT);
 
         board.move_piece(&mut Move::dummy_from_to(Squares::A3, Squares::A4));
         board.move_piece(&mut Move::dummy_from_to(Squares::H8, Squares::G8));
 
         board.display();
 
-        assert_eq!(
-            0,
-            board.castling_rights & Board::BLACK_KING_SIDE_CASTLING_RIGHT
-        );
+        assert_eq!(0, board.castling_rights & Board::BLACK_KING_SIDE_CASTLING_RIGHT);
 
         assert_eq!(0, board.castling_rights & Board::BLACK_CASTLING_RIGHTS);
     }
@@ -821,11 +793,7 @@ mod tests {
 
         board.display();
 
-        board.move_piece(&mut Move::dummy_with_flags(
-            EN_PASSANT,
-            Squares::D5,
-            Squares::C6,
-        ));
+        board.move_piece(&mut Move::dummy_with_flags(EN_PASSANT, Squares::D5, Squares::C6));
 
         board.display();
 
@@ -876,16 +844,8 @@ mod tests {
 
         board.move_piece(&mut Move::dummy_from_to(Squares::A2, Squares::A4));
 
-        assert_eq!(
-            board.bitboards[PAWNS_IDX] & to,
-            to,
-            "Pawn should be moved to a4"
-        );
-        assert_eq!(
-            board.bitboards[PAWNS_IDX] & from,
-            0,
-            "Pawn should no longer be at a2"
-        );
+        assert_eq!(board.bitboards[PAWNS_IDX] & to, to, "Pawn should be moved to a4");
+        assert_eq!(board.bitboards[PAWNS_IDX] & from, 0, "Pawn should no longer be at a2");
     }
 
     #[test]

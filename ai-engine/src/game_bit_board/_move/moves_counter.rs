@@ -81,10 +81,7 @@ mod moves_counter_test {
 
         for (depth, expected_result) in resuls {
             print!("Depth {depth}: ");
-            assert_eq!(
-                expected_result,
-                count_moves(&mut board, depth, false, move_generator)
-            );
+            assert_eq!(expected_result, count_moves(&mut board, depth, false, move_generator));
             println!("OK!");
         }
     }

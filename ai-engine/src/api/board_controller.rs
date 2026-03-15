@@ -23,10 +23,7 @@ use crate::{
 pub async fn get_board(
     board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>,
 ) -> impl Responder {
-    get_board_response(
-        &mut board.lock().unwrap(),
-        &mut move_generator.lock().unwrap(),
-    )
+    get_board_response(&mut board.lock().unwrap(), &mut move_generator.lock().unwrap())
 }
 
 #[post("/board/moves/count")]
@@ -135,7 +132,8 @@ pub fn get_board_response(
         "zobrit": zobrist,
         "pieces": pieces,
         "whiteKingInCheck": false,
-        "movesHistory": board.get_moves_history().iter().map(|_move| MoveDTO::from_move(_move)).collect::<Vec<MoveDTO>>(),
+        "movesHistory": board.get_moves_history()
+            .iter().map(|_move| MoveDTO::from_move(_move)).collect::<Vec<MoveDTO>>(),
         "evaluation": board_evaluation
     }))
 }

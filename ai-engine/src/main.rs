@@ -43,9 +43,7 @@ fn get_piece_attacks(from: usize, moves: &Vec<Move>) -> Vec<usize> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    rayon::ThreadPoolBuilder::new()
-        .build_global()
-        .unwrap();
+    rayon::ThreadPoolBuilder::new().build_global().unwrap();
 
     println!("Server started successfully 🚀!");
 

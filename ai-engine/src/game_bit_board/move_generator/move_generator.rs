@@ -704,35 +704,15 @@ mod tests {
 
         board.display();
 
-        let white_king_side_castle = Move::with_flags(
-            KING_CASTLE,
-            Squares::E1,
-            Squares::G1,
-            Color::White,
-            PieceType::King,
-        );
-        let white_queen_side_castle = Move::with_flags(
-            QUEEN_CASTLE,
-            Squares::E1,
-            Squares::C1,
-            Color::White,
-            PieceType::King,
-        );
+        let white_king_side_castle =
+            Move::with_flags(KING_CASTLE, Squares::E1, Squares::G1, Color::White, PieceType::King);
+        let white_queen_side_castle =
+            Move::with_flags(QUEEN_CASTLE, Squares::E1, Squares::C1, Color::White, PieceType::King);
 
-        let black_king_side_castle = Move::with_flags(
-            KING_CASTLE,
-            Squares::E8,
-            Squares::G8,
-            Color::Black,
-            PieceType::King,
-        );
-        let black_queen_side_castle = Move::with_flags(
-            QUEEN_CASTLE,
-            Squares::E8,
-            Squares::C8,
-            Color::Black,
-            PieceType::King,
-        );
+        let black_king_side_castle =
+            Move::with_flags(KING_CASTLE, Squares::E8, Squares::G8, Color::Black, PieceType::King);
+        let black_queen_side_castle =
+            Move::with_flags(QUEEN_CASTLE, Squares::E8, Squares::C8, Color::Black, PieceType::King);
         (
             board,
             white_king_side_castle,
@@ -872,12 +852,7 @@ mod tests {
 
         let mut expected_moves = Vec::new();
 
-        expected_moves.push(Move::from_to(
-            Squares::E1,
-            Squares::D1,
-            Color::White,
-            PieceType::King,
-        ));
+        expected_moves.push(Move::from_to(Squares::E1, Squares::D1, Color::White, PieceType::King));
         expected_moves.push(Move::with_flags(
             CAPTURE,
             Squares::E1,
@@ -1032,12 +1007,7 @@ mod tests {
 
         let mut expected_moves = Vec::new();
 
-        expected_moves.push(Move::from_to(
-            Squares::A1,
-            Squares::A2,
-            Color::White,
-            PieceType::Rook,
-        ));
+        expected_moves.push(Move::from_to(Squares::A1, Squares::A2, Color::White, PieceType::Rook));
         expected_moves.push(Move::with_flags(
             CAPTURE,
             Squares::A1,
@@ -1045,12 +1015,7 @@ mod tests {
             Color::White,
             PieceType::Rook,
         ));
-        expected_moves.push(Move::from_to(
-            Squares::A1,
-            Squares::B1,
-            Color::White,
-            PieceType::Rook,
-        ));
+        expected_moves.push(Move::from_to(Squares::A1, Squares::B1, Color::White, PieceType::Rook));
 
         let mut not_expected_moves = Vec::new();
 
@@ -1087,13 +1052,8 @@ mod tests {
         board.move_piece(&mut white_knight_to_c3);
         board.move_piece(&mut Move::dummy_from_to(Squares::D7, Squares::D5));
 
-        let white_knight_to_d5 = Move::with_flags(
-            CAPTURE,
-            Squares::C3,
-            Squares::D5,
-            Color::White,
-            PieceType::Knight,
-        );
+        let white_knight_to_d5 =
+            Move::with_flags(CAPTURE, Squares::C3, Squares::D5, Color::White, PieceType::Knight);
 
         expected_moves = Vec::new();
 
@@ -1159,19 +1119,11 @@ mod tests {
     fn test_get_en_passant() {
         let mut board = Board::new();
 
-        board.move_piece(&mut Move::dummy_with_flags(
-            DOUBLE_PAWN_PUSH,
-            Squares::D2,
-            Squares::D4,
-        ));
+        board.move_piece(&mut Move::dummy_with_flags(DOUBLE_PAWN_PUSH, Squares::D2, Squares::D4));
         board.move_piece(&mut Move::dummy_from_to(Squares::A7, Squares::A6));
         board.move_piece(&mut Move::dummy_from_to(Squares::D4, Squares::D5));
         board.move_piece(&mut Move::dummy_from_to(Squares::A6, Squares::A5));
-        board.move_piece(&mut Move::dummy_with_flags(
-            DOUBLE_PAWN_PUSH,
-            Squares::F2,
-            Squares::F4,
-        ));
+        board.move_piece(&mut Move::dummy_with_flags(DOUBLE_PAWN_PUSH, Squares::F2, Squares::F4));
         board.move_piece(&mut Move::dummy_from_to(Squares::A5, Squares::A4));
         board.move_piece(&mut Move::dummy_from_to(Squares::F4, Squares::F5));
 

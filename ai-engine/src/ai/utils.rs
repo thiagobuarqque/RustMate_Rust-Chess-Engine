@@ -1,6 +1,8 @@
 use crate::game_bit_board::enums::PieceType;
 
-use super::constants::{BISHOP_WORTH, KING_WORTH, KNIGHT_WORTH, PAWN_WORTH, QUEEN_WORTH, ROOK_WORTH};
+use super::constants::{
+    BISHOP_WORTH, KING_WORTH, KNIGHT_WORTH, PAWN_WORTH, QUEEN_WORTH, ROOK_WORTH,
+};
 
 #[inline(always)]
 pub fn get_piece_worth(piece_type: PieceType) -> f32 {
@@ -11,6 +13,6 @@ pub fn get_piece_worth(piece_type: PieceType) -> f32 {
         PieceType::Pawn => PAWN_WORTH,
         PieceType::Queen => QUEEN_WORTH,
         PieceType::Rook => ROOK_WORTH,
-        PieceType::Empty => 0.0
+        PieceType::Empty => 0.0,
     }
 }
