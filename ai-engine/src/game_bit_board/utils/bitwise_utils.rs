@@ -98,7 +98,6 @@ static DEBRUIJ_T: &[u8] = &[
 
 const DEBRUIJ_M: u64 = 0x03f7_9d71_b4cb_0a89;
 
-#[inline(always)]
 pub fn pop_lsb(bits: &mut u64) -> u8 {
     let bitss = *bits;
 
