@@ -588,7 +588,7 @@ impl Board {
                     }
                     let color = self.get_piece_color(square);
 
-                    fen.push_str(get_piece_letter(color, &piece_type).as_str());
+                    fen.push_str(get_piece_letter(color, &piece_type));
                 }
             }
             if empty_squares > 0 {
@@ -661,7 +661,7 @@ impl Board {
                 let square = row * 8 + col;
 
                 let piece_char = if attack_squares.contains(&square) {
-                    "*".to_string()
+                    "*"
                 } else {
                     get_piece_symbol(self.get_piece_color(square), self.get_piece_type(square))
                 };

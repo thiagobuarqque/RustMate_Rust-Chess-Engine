@@ -208,7 +208,7 @@ impl Move {
 
         // Piece type
         let piece = match self.piece_type {
-            PieceType::Pawn => "".to_string(),
+            PieceType::Pawn => "",
             _ => {
                 if !use_symbol {
                     get_piece_letter(self.color, &self.piece_type)

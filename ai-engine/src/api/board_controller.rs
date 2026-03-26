@@ -112,12 +112,12 @@ pub fn get_board_response(
         .get_black_captures()
         .iter()
         .map(|capture| capture.to_fen(Color::White))
-        .collect::<Vec<String>>();
+        .collect::<Vec<&'static str>>();
     let white_captures = board
         .get_white_captures()
         .iter()
         .map(|capture| capture.to_fen(Color::Black))
-        .collect::<Vec<String>>();
+        .collect::<Vec<&'static str>>();
 
     let board_evaluation = _get_board_value(board, 1.0);
 

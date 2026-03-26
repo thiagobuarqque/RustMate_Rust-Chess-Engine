@@ -22,8 +22,8 @@ pub fn square_to_algebraic(square: usize) -> String {
     format!("{}{}", algebraic_file, algebraic_rank)
 }
 
-pub fn get_piece_symbol(color: Color, piece_type: PieceType) -> String {
-    (match (color, piece_type) {
+pub fn get_piece_symbol(color: Color, piece_type: PieceType) -> &'static str {
+    match (color, piece_type) {
         (Color::Black, PieceType::Bishop) => "♝",
         (Color::Black, PieceType::King) => "♚",
         (Color::Black, PieceType::Knight) => "♞",
@@ -37,12 +37,11 @@ pub fn get_piece_symbol(color: Color, piece_type: PieceType) -> String {
         (Color::White, PieceType::Queen) => "♕",
         (Color::White, PieceType::Rook) => "♖",
         _ => ".",
-    })
-    .to_string()
+    }
 }
 
-pub fn get_piece_letter(color: Color, piece_type: &PieceType) -> String {
-    (match (color, piece_type) {
+pub fn get_piece_letter(color: Color, piece_type: &PieceType) -> &'static str {
+    match (color, piece_type) {
         (Color::Black, PieceType::Bishop) => "b",
         (Color::Black, PieceType::King) => "k",
         (Color::Black, PieceType::Knight) => "n",
@@ -56,8 +55,7 @@ pub fn get_piece_letter(color: Color, piece_type: &PieceType) -> String {
         (Color::White, PieceType::Queen) => "Q",
         (Color::White, PieceType::Rook) => "R",
         _ => ".",
-    })
-    .to_string()
+    }
 }
 
 pub fn get_piece_color_and_type_from_symbol(symbol: char) -> (Color, PieceType) {
