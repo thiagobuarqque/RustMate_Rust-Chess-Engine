@@ -302,13 +302,13 @@ impl Board {
     }
 
     fn save_current_state(&mut self, _move: &mut Move) {
-        _move.castling_rights = self.castling_rights;
-        _move.bitboards = self.bitboards;
-        _move.board_en_passant_bb_position = self.en_passant_bb_position;
-        _move.board_en_passant_bb_piece_square = self.en_passant_piece_square_bb;
-        _move.black_king_moved = self.black_king_moved;
-        _move.white_king_moved = self.white_king_moved;
-        _move.zobrist_hash = self.zobrist.get_hash();
+        _move.set_castling_rights(self.castling_rights);
+        _move.set_bitboards(self.bitboards);
+        _move.set_board_en_passant_bb_position(self.en_passant_bb_position);
+        _move.set_board_en_passant_bb_piece_square(self.en_passant_piece_square_bb);
+        _move.set_black_king_moved(self.black_king_moved);
+        _move.set_white_king_moved(self.white_king_moved);
+        _move.set_zobrist_hash(self.zobrist.get_hash());
         self.moves_history.push(*_move);
     }
 
@@ -323,13 +323,13 @@ impl Board {
     }
 
     fn unmake_move(&mut self, _move: &mut Move) {
-        self.castling_rights = _move.castling_rights;
-        self.bitboards = _move.bitboards;
-        self.en_passant_bb_position = _move.board_en_passant_bb_position;
-        self.en_passant_piece_square_bb = _move.board_en_passant_bb_piece_square;
-        self.black_king_moved = _move.black_king_moved;
-        self.white_king_moved = _move.white_king_moved;
-        self.zobrist.set_hash(_move.zobrist_hash);
+        self.castling_rights = _move.castling_rights();
+        self.bitboards = _move.bitboards();
+        self.en_passant_bb_position = _move.board_en_passant_bb_position();
+        self.en_passant_piece_square_bb = _move.board_en_passant_bb_piece_square();
+        self.black_king_moved = _move.black_king_moved();
+        self.white_king_moved = _move.white_king_moved();
+        self.zobrist.set_hash(_move.zobrist_hash());
 
         if self.side_to_move.is_white() {
             self.full_move_clock -= 1;
@@ -346,7 +346,7 @@ impl Board {
         self.moves_history.remove(self.moves_history.len() - 1);
 
         if _move.is_capture() {
-            if _move.color.is_black() {
+            if _move.color().is_black() {
                 self.black_captures.remove(self.black_captures.len() - 1);
             } else {
                 self.white_captures.remove(self.white_captures.len() - 1);

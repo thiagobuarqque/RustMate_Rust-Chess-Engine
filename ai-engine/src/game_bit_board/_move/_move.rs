@@ -39,19 +39,19 @@ pub struct Move {
     _move: u16,
     en_passant_bb_position: u64,
     en_passant_bb_piece_square: u64,
-    pub color: Color,
-    pub piece_type: PieceType,
+    color: Color,
+    piece_type: PieceType,
 
-    pub move_worth: f32,
+    move_worth: f32,
 
     // Board state before making this move
-    pub castling_rights: u8,
-    pub bitboards: [u64; 8],
-    pub board_en_passant_bb_position: u64,
-    pub board_en_passant_bb_piece_square: u64,
-    pub black_king_moved: bool,
-    pub white_king_moved: bool,
-    pub zobrist_hash: u64,
+    castling_rights: u8,
+    bitboards: [u64; 8],
+    board_en_passant_bb_position: u64,
+    board_en_passant_bb_piece_square: u64,
+    black_king_moved: bool,
+    white_king_moved: bool,
+    zobrist_hash: u64,
 }
 
 impl fmt::Display for Move {
@@ -61,6 +61,8 @@ impl fmt::Display for Move {
 }
 
 impl Move {
+
+
     /// For test purposes
     pub fn dummy_from_to(from: usize, to: usize) -> Self {
         if cfg!(test) {
@@ -179,6 +181,87 @@ impl Move {
     }
 
     pub fn get_en_passant_bb_piece_square(&self) -> u64 { self.en_passant_bb_piece_square }
+
+
+    pub fn color(&self) -> Color {
+        self.color
+    }
+
+    pub fn piece_type(&self) -> PieceType {
+        self.piece_type
+    }
+
+    pub fn move_worth(&self) -> f32 {
+        self.move_worth
+    }
+
+    pub fn castling_rights(&self) -> u8 {
+        self.castling_rights
+    }
+
+    pub fn bitboards(&self) -> [u64; 8] {
+        self.bitboards
+    }
+
+    pub fn board_en_passant_bb_position(&self) -> u64 {
+        self.board_en_passant_bb_position
+    }
+
+    pub fn board_en_passant_bb_piece_square(&self) -> u64 {
+        self.board_en_passant_bb_piece_square
+    }
+
+    pub fn black_king_moved(&self) -> bool {
+        self.black_king_moved
+    }
+
+    pub fn white_king_moved(&self) -> bool {
+        self.white_king_moved
+    }
+
+    pub fn zobrist_hash(&self) -> u64 {
+        self.zobrist_hash
+    }
+
+    pub fn set_color(&mut self, color: Color) {
+        self.color = color;
+    }
+
+    pub fn set_piece_type(&mut self, piece_type: PieceType) {
+        self.piece_type = piece_type;
+    }
+
+    pub fn set_move_worth(&mut self, move_worth: f32) {
+        self.move_worth = move_worth;
+    }
+
+    pub fn set_castling_rights(&mut self, castling_rights: u8) {
+        self.castling_rights = castling_rights;
+    }
+
+    pub fn set_bitboards(&mut self, bitboards: [u64; 8]) {
+        self.bitboards = bitboards;
+    }
+
+    pub fn set_board_en_passant_bb_position(&mut self, board_en_passant_bb_position: u64) {
+        self.board_en_passant_bb_position = board_en_passant_bb_position;
+    }
+
+    pub fn set_board_en_passant_bb_piece_square(&mut self, board_en_passant_bb_piece_square: u64) {
+        self.board_en_passant_bb_piece_square = board_en_passant_bb_piece_square;
+    }
+
+    pub fn set_black_king_moved(&mut self, black_king_moved: bool) {
+        self.black_king_moved = black_king_moved;
+    }
+
+    pub fn set_white_king_moved(&mut self, white_king_moved: bool) {
+        self.white_king_moved = white_king_moved;
+    }
+
+    pub fn set_zobrist_hash(&mut self, zobrist_hash: u64) {
+        self.zobrist_hash = zobrist_hash;
+    }
 
     pub fn to_simple_notation(&self) -> String {
         let from_square = self.decode_square((self._move >> 6) & 0x3F);

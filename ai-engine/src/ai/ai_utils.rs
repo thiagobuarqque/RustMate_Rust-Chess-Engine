@@ -31,7 +31,7 @@ pub fn get_sorted_moves(
             let target_piece = board.get_piece_type(_move.get_to());
 
             _move.sum_to_move_worth(
-                (get_piece_worth(target_piece)) - get_piece_worth(_move.piece_type),
+                (get_piece_worth(target_piece)) - get_piece_worth(_move.piece_type()),
             );
         }
 
@@ -42,14 +42,14 @@ pub fn get_sorted_moves(
         let attacked_squares = !attack_data.king_allowed_squares;
 
         if attacked_squares & _move.get_to() as u64 != 0 {
-            _move.sum_to_move_worth(-get_piece_worth(_move.piece_type))
+            _move.sum_to_move_worth(-get_piece_worth(_move.piece_type()))
         }
 
         _move.sum_to_move_worth(get_position_value(
             end_game,
-            _move.piece_type,
+            _move.piece_type(),
             _move.get_from(),
-            _move.color.is_white(),
+            _move.color().is_white(),
         ));
 
         //let mut move_clone = &mut _move.clone();
@@ -69,14 +69,14 @@ pub fn get_sorted_moves(
 
     if color == 1.0 {
         moves.sort_by(|a, b| {
-            b.move_worth
-                .partial_cmp(&a.move_worth)
+            b.move_worth()
+                .partial_cmp(&a.move_worth())
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
     } else {
         moves.sort_by(|a, b| {
-            a.move_worth
-                .partial_cmp(&b.move_worth)
+            a.move_worth()
+                .partial_cmp(&b.move_worth())
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
     }
@@ -98,7 +98,7 @@ pub fn get_sorted_moves(
 }
 
 fn get_end_game_move_worth(board: &mut Board, color: f32, _move: &Move) -> f32 {
-    let (friendly_king_position, opponent_king_position) = if _move.color.is_white() {
+    let (friendly_king_position, opponent_king_position) = if _move.color().is_white() {
         (_move.get_to(), board.get_king_position(Color::Black))
     } else {
         (_move.get_to(), board.get_king_position(Color::White))
