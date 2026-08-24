@@ -7,7 +7,7 @@ use crate::game_bit_board::{
     utils::utils::{get_piece_letter, get_piece_symbol},
 };
 
-use super::move_contants::*;
+use super::move_constants::*;
 
 /// Encodes a move with source and destination squares and optional flags.
 ///
@@ -79,7 +79,7 @@ impl Move {
         }
     }
 
-    /// Encondes a normal move `from` square `to` square.
+    /// Encodes a normal move `from` square `to` square.
     /// # Parameters
     /// - `from`: The index of the square the piece is moving from (0-63).
     /// - `to`: The index of the square the piece is moving to (0-63).
@@ -90,7 +90,7 @@ impl Move {
         Move::with_flags(0, from, to, color, piece_type)
     }
 
-    /// Encondes a special move `from` square `to` square.
+    /// Encodes a special move `from` square `to` square.
     /// # Parameters
     /// - `flags`: A 4-bit value used to encode special move types (e.g.,
     ///   promotion, en passant).

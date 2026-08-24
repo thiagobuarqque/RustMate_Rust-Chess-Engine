@@ -681,7 +681,7 @@ impl Board {
 #[cfg(test)]
 mod tests {
     use crate::game_bit_board::{
-        _move::{_move::Move, move_contants::*},
+        _move::{_move::Move, move_constants::*},
         board::{Board, PAWNS_IDX, QUEENS_IDX},
         enums::{Color, PieceType},
         positions::{BBPositions, Squares},
