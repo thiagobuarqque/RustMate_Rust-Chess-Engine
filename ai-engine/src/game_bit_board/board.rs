@@ -401,7 +401,7 @@ impl Board {
                 self.zobrist
                     .update_en_passant_hash(self.en_passant_piece_square_bb);
             } else if _move.is_promotion() {
-                piece_type = _move.get_piece_type_from_promotion_flag();
+                piece_type = _move.get_promotion_piece_type();
             }
         }
 
