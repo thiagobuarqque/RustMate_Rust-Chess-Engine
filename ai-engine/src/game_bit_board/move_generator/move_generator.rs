@@ -12,7 +12,7 @@ use super::{
 use crate::{
     constants::constants::{WINNER_BLACK, WINNER_DRAW, WINNER_WHITE},
     game_bit_board::{
-        _move::{_move::Move, move_contants::*},
+        _move::{_move::Move, move_constants::*},
         board::Board,
         enums::{Color, PieceType},
         utils::{
@@ -499,7 +499,7 @@ mod tests {
     use once_cell::sync::Lazy;
 
     use crate::game_bit_board::{
-        _move::{_move::Move, move_contants::*},
+        _move::{_move::Move, move_constants::*},
         board::Board,
         enums::{Color, PieceType},
         positions::{BBPositions, Squares},
