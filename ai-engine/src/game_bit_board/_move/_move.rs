@@ -262,6 +262,16 @@ impl Move {
         }
     }
 
+    pub fn get_piece_type_from_promotion_flag(&self) -> PieceType {
+        match self.get_flags() {
+            KNIGHT_PROMOTION | KNIGHT_PROMOTION_CAPTURE => PieceType::Knight,
+            BISHOP_PROMOTION | BISHOP_PROMOTION_CAPTURE => PieceType::Bishop,
+            ROOK_PROMOTION | ROOK_PROMOTION_CAPTURE => PieceType::Rook,
+            QUEEN_PROMOTION | QUEEN_PROMOTION_CAPTURE => PieceType::Queen,
+            _ => PieceType::Empty,
+        }
+    }
+
     fn file_of(&self, square: String) -> String { square.chars().next().unwrap().to_string() }
 
     pub fn get_promotion_piece_type(&self) -> PieceType {

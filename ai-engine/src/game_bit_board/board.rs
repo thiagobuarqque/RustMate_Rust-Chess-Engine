@@ -1,7 +1,7 @@
 use crate::{constants::constants::WINNER_NONE, game_bit_board::utils::utils::get_piece_symbol};
 
 use super::{
-    _move::{_move::Move, move_utils::get_piece_type_from_promotion_flag},
+    _move::{_move::Move},
     enums::{Color, PieceType},
     positions::BBPositions,
     utils::{
@@ -401,7 +401,7 @@ impl Board {
                 self.zobrist
                     .update_en_passant_hash(self.en_passant_piece_square_bb);
             } else if _move.is_promotion() {
-                piece_type = get_piece_type_from_promotion_flag(_move.get_flags());
+                piece_type = _move.get_piece_type_from_promotion_flag();
             }
         }
 
