@@ -236,12 +236,7 @@ impl Move {
             promotion = promotion.to_uppercase();
         }
 
-        // Handle pawn capture notation
-        // let pawn_file = if self.piece_type == PieceType::Pawn && capture_symbol ==
-        // "x" {     self.file_of(from_square.clone())
-        // } else {
-        //     "".to_string()
-        // };
+        // TODO: Handle pawn capture notation
 
         format!("{piece}{from_square}{capture_symbol}{to_square}{promotion}")
     }
@@ -271,8 +266,6 @@ impl Move {
             _ => PieceType::Empty,
         }
     }
-
-    fn file_of(&self, square: String) -> String { square.chars().next().unwrap().to_string() }
 
     pub fn get_promotion_piece_type(&self) -> PieceType {
         match self.get_flags() {
