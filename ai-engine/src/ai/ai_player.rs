@@ -79,29 +79,36 @@ impl AIPlayer {
         //}
         self.states += 1;
 
-        let key = (board.get_zobrist_hash(), depth);
+        let key = board.get_zobrist_hash();
 
-        let result = self.transposition_table.retrieve(key);
+        let alpha_original = alpha;
 
-        if result.is_some() {
-            let transposition_table_entry = result.unwrap();
+        if let Some(entry) = self.transposition_table.retrieve(key) {
+            // Only a search at least as deep as this one can be reused
+            if entry.depth >= depth {
+                match entry.flag {
+                    EntryFlag::Exact => return (entry.value, entry.best_move),
+                    EntryFlag::Lowerbound => alpha = alpha.max(entry.value),
+                    EntryFlag::Upperbound => beta = beta.min(entry.value),
+                }
 
-            return (transposition_table_entry.value, transposition_table_entry.best_move);
+                if alpha >= beta {
+                    return (entry.value, entry.best_move);
+                }
+            }
         }
 
         if depth == 0 || board.is_game_finished() {
             // The evaluation is relative to the side to move
             let value = get_board_value(board, 1.0);
 
-            self.transposition_table.store(
+            self.transposition_table.store(TranspositionTableEntry {
                 key,
-                TranspositionTableEntry {
-                    depth,
-                    value,
-                    best_move: None,
-                    flag: EntryFlag::Exact,
-                },
-            );
+                depth,
+                value,
+                best_move: None,
+                flag: EntryFlag::Exact,
+            });
 
             return (value, None);
         }
@@ -119,15 +126,13 @@ impl AIPlayer {
                 -(MATE_SCORE + depth as f32)
             };
 
-            self.transposition_table.store(
+            self.transposition_table.store(TranspositionTableEntry {
                 key,
-                TranspositionTableEntry {
-                    depth,
-                    value,
-                    best_move: None,
-                    flag: EntryFlag::Exact,
-                },
-            );
+                depth,
+                value,
+                best_move: None,
+                flag: EntryFlag::Exact,
+            });
 
             return (value, None);
         }
@@ -155,15 +160,23 @@ impl AIPlayer {
             }
         }
 
-        self.transposition_table.store(
+        // A value outside the original window is only a bound, the search was
+        // cut short there
+        let flag = if value <= alpha_original {
+            EntryFlag::Upperbound
+        } else if value >= beta {
+            EntryFlag::Lowerbound
+        } else {
+            EntryFlag::Exact
+        };
+
+        self.transposition_table.store(TranspositionTableEntry {
             key,
-            TranspositionTableEntry {
-                depth,
-                value,
-                best_move,
-                flag: EntryFlag::Exact,
-            },
-        );
+            depth,
+            value,
+            best_move,
+            flag,
+        });
 
         (value, best_move)
     }
