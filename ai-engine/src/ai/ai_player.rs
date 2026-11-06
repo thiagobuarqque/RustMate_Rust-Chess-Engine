@@ -39,6 +39,8 @@ impl AIPlayer {
         &mut self, board: &mut Board, move_generator: &mut MoveGenerator,
     ) -> (u128, u8, f32, u64, Option<Move>) {
         self.start_time = Instant::now();
+        self.states = 0;
+        self.transposition_table.reset_hits();
 
         let mut depth = 5;
 
@@ -190,7 +192,7 @@ impl AIPlayer {
 #[cfg(test)]
 mod tests {
     use crate::{
-        constants::constants::WINNER_WHITE,
+        constants::constants::{INITIAL_FEN, WINNER_WHITE},
         game_bit_board::{board::Board, move_generator::move_generator::MoveGenerator},
     };
 
@@ -228,5 +230,23 @@ mod tests {
 
         assert!(moves.is_empty(), "{best_move} is not mate");
         assert_eq!(WINNER_WHITE, board.get_winner(), "{best_move} is not mate");
+    }
+
+    #[test]
+    fn test_reuses_previous_search() {
+        let mut board = Board::from_fen(INITIAL_FEN);
+        let mut move_generator = MoveGenerator::new();
+        let mut ai_player = AIPlayer::new(0);
+
+        let (_, _, _, first_states, first_move) =
+            ai_player.get_ai_move(&mut board, &mut move_generator);
+        let (_, _, _, second_states, second_move) =
+            ai_player.get_ai_move(&mut board, &mut move_generator);
+
+        assert!(second_states < first_states);
+        assert_eq!(
+            first_move.unwrap().to_simple_notation(),
+            second_move.unwrap().to_simple_notation()
+        );
     }
 }

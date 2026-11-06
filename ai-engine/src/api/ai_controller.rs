@@ -14,9 +14,11 @@ use crate::{
 #[get("/ai/move")]
 pub async fn ai_move(
     board: web::Data<Mutex<Board>>, move_generator: web::Data<Mutex<MoveGenerator>>,
+    ai_player: web::Data<Mutex<AIPlayer>>,
 ) -> impl Responder {
     let mut board = board.lock().unwrap();
     let mut move_generator = move_generator.lock().unwrap();
+    let mut ai_player = ai_player.lock().unwrap();
 
     if board.is_game_finished() {
         return HttpResponse::Ok().json(json!({
@@ -26,8 +28,6 @@ pub async fn ai_move(
             "aiMove": None::<MoveDTO>
         }));
     }
-
-    let mut ai_player = AIPlayer::new(3);
 
     let (duration, depth, evaluation, nodes_searched, mut _move) =
         ai_player.get_ai_move(&mut board, &mut move_generator);
