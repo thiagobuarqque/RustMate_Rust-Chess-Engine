@@ -438,22 +438,15 @@ impl MoveGenerator {
             & attack_data.defenders_bb;
 
         if forward_two != 0 {
-            let en_passant_bb_piece_square = forward_two;
-
             let target_square = pop_lsb(&mut forward_two) as usize;
 
-            let mut _move = Move::with_flags(
+            moves.push(Move::with_flags(
                 DOUBLE_PAWN_PUSH,
                 square,
                 target_square,
                 self.side_to_move,
                 PieceType::Pawn,
-            );
-
-            _move.set_en_passant_bb_position(raw_forward_one);
-            _move.set_en_passant_bb_piece_square(en_passant_bb_piece_square);
-
-            moves.push(_move);
+            ));
         }
     }
 
@@ -1076,9 +1069,6 @@ mod tests {
             PieceType::Pawn,
         );
 
-        white_pawn_to_d4.set_en_passant_bb_position(BBPositions::D3);
-        white_pawn_to_d4.set_en_passant_bb_piece_square(BBPositions::D4);
-
         expected_moves.push(white_pawn_to_d4);
 
         assert_available_moves(&mut board, expected_moves, Vec::new());
@@ -1094,9 +1084,6 @@ mod tests {
             Color::Black,
             PieceType::Pawn,
         );
-
-        black_pawn_to_e5.set_en_passant_bb_position(BBPositions::E6);
-        black_pawn_to_e5.set_en_passant_bb_piece_square(BBPositions::E5);
 
         expected_moves.push(black_pawn_to_e5);
 
@@ -1149,9 +1136,6 @@ mod tests {
             Color::Black,
             PieceType::Pawn,
         );
-
-        black_double_push.set_en_passant_bb_position(BBPositions::E6);
-        black_double_push.set_en_passant_bb_piece_square(BBPositions::E5);
 
         expected_moves.push(black_double_push);
 

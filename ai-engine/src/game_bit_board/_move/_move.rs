@@ -37,21 +37,10 @@ use super::move_contants::*;
 #[derive(Copy, Debug, Clone, Deserialize, PartialEq, Serialize)]
 pub struct Move {
     _move: u16,
-    en_passant_bb_position: u64,
-    en_passant_bb_piece_square: u64,
     pub color: Color,
     pub piece_type: PieceType,
 
     pub move_worth: f32,
-
-    // Board state before making this move
-    pub castling_rights: u8,
-    pub bitboards: [u64; 8],
-    pub board_en_passant_bb_position: u64,
-    pub board_en_passant_bb_piece_square: u64,
-    pub black_king_moved: bool,
-    pub white_king_moved: bool,
-    pub zobrist_hash: u64,
 }
 
 impl fmt::Display for Move {
@@ -104,19 +93,9 @@ impl Move {
     ) -> Self {
         Self {
             _move: ((flags & 0xf) << 12) | ((from as u16 & 0x3f) << 6) | (to as u16 & 0x3f),
-            en_passant_bb_position: 0,
-            en_passant_bb_piece_square: 0,
             color,
             piece_type,
             move_worth: 0.0,
-
-            castling_rights: 0,
-            bitboards: [0; 8],
-            board_en_passant_bb_position: 0,
-            board_en_passant_bb_piece_square: 0,
-            black_king_moved: false,
-            white_king_moved: false,
-            zobrist_hash: 0,
         }
     }
 
@@ -168,17 +147,13 @@ impl Move {
 
     pub fn is_promotion(&self) -> bool { self.get_flags() >= KNIGHT_PROMOTION }
 
-    pub fn set_en_passant_bb_position(&mut self, position: u64) {
-        self.en_passant_bb_position = position
+    /// The square skipped by a double pawn push
+    pub fn get_en_passant_bb_position(&self) -> u64 {
+        1 << ((self.get_from() + self.get_to()) / 2)
     }
 
-    pub fn get_en_passant_bb_position(&self) -> u64 { self.en_passant_bb_position }
-
-    pub fn set_en_passant_bb_piece_square(&mut self, square: u64) {
-        self.en_passant_bb_piece_square = square
-    }
-
-    pub fn get_en_passant_bb_piece_square(&self) -> u64 { self.en_passant_bb_piece_square }
+    /// The square of the pawn that made a double pawn push
+    pub fn get_en_passant_bb_piece_square(&self) -> u64 { 1 << self.get_to() }
 
     pub fn to_simple_notation(&self) -> String {
         let from_square = self.decode_square((self._move >> 6) & 0x3F);
@@ -373,6 +348,12 @@ mod tests {
     //     );
     //     assert_eq!(_move.to_algebraic_notation(), "♗g5");
     // }
+
+    #[test]
+    fn test_move_size() {
+        // Moves are generated and sorted on every search node, keep them small
+        assert!(std::mem::size_of::<Move>() <= 8);
+    }
 
     #[test]
     fn test_from_to() {
