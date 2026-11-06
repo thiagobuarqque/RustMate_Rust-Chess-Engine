@@ -12,6 +12,7 @@ use crate::{
 
 use super::{
     ai_utils::{get_board_value, get_sorted_moves},
+    constants::MATE_SCORE,
     transposition_table::{EntryFlag, TranspositionTable, TranspositionTableEntry},
 };
 
@@ -109,6 +110,28 @@ impl AIPlayer {
 
         let mut moves: Vec<Move> = get_sorted_moves(board, move_generator);
 
+        // No legal moves, the move generator has set the winner
+        if moves.is_empty() {
+            let value = if board.get_winner() == WINNER_DRAW {
+                0.0
+            } else {
+                // The more depth is left, the sooner the mate, the worse it is
+                -(MATE_SCORE + depth as f32)
+            };
+
+            self.transposition_table.store(
+                key,
+                TranspositionTableEntry {
+                    depth,
+                    value,
+                    best_move: None,
+                    flag: EntryFlag::Exact,
+                },
+            );
+
+            return (value, None);
+        }
+
         let mut value = f32::MIN;
 
         for _move in moves.iter_mut() {
@@ -148,5 +171,49 @@ impl AIPlayer {
     #[inline(always)]
     fn _is_time_over(&self) -> bool {
         Instant::now().duration_since(self.start_time) >= Duration::new(self.time_to_think, 0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        constants::constants::WINNER_WHITE,
+        game_bit_board::{board::Board, move_generator::move_generator::MoveGenerator},
+    };
+
+    use super::AIPlayer;
+
+    fn get_ai_move(fen: &str) -> (Board, MoveGenerator, String) {
+        let mut board = Board::from_fen(fen);
+        let mut move_generator = MoveGenerator::new();
+
+        let (_, _, _, _, mut best_move) =
+            AIPlayer::new(0).get_ai_move(&mut board, &mut move_generator);
+
+        let mut best_move = best_move.take().expect("The AI should always return a move");
+
+        board.move_piece(&mut best_move);
+
+        (board, move_generator, best_move.to_simple_notation())
+    }
+
+    #[test]
+    fn test_avoids_stalemate_when_winning() {
+        // Qb6 stalemates black
+        let (_, _, best_move) = get_ai_move("k7/8/8/1Q6/8/8/8/7K w - - 0 1");
+
+        assert_ne!("b5b6", best_move);
+    }
+
+    #[test]
+    fn test_finds_mate_in_one() {
+        // Qg8 is mate
+        let (mut board, mut move_generator, best_move) =
+            get_ai_move("k7/8/1K6/8/8/8/8/6Q1 w - - 0 1");
+
+        let (moves, _) = move_generator.get_moves(&mut board).unwrap();
+
+        assert!(moves.is_empty(), "{best_move} is not mate");
+        assert_eq!(WINNER_WHITE, board.get_winner(), "{best_move} is not mate");
     }
 }
