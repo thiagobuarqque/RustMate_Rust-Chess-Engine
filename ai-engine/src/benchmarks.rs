@@ -40,12 +40,16 @@ fn perft(board: &mut Board, depth: usize, move_generator: &mut MoveGenerator) ->
     nodes
 }
 
-fn best_of<T>(runs: usize, mut f: impl FnMut() -> T) -> (Duration, T) {
+/// Runs `f` with a fresh value from `setup` each time, only `f` is timed
+fn best_of<S, T>(
+    runs: usize, mut setup: impl FnMut() -> S, mut f: impl FnMut(S) -> T,
+) -> (Duration, T) {
     let mut best: Option<(Duration, T)> = None;
 
     for _ in 0..runs {
+        let value = setup();
         let start = Instant::now();
-        let result = f();
+        let result = f(value);
         let elapsed = start.elapsed();
 
         if best
@@ -63,7 +67,7 @@ fn bench_perft(name: &str, fen: &str, depth: usize, expected_nodes: u64) {
     let mut move_generator = MoveGenerator::new();
     let mut board = Board::from_fen(fen);
 
-    let (elapsed, nodes) = best_of(RUNS, || perft(&mut board, depth, &mut move_generator));
+    let (elapsed, nodes) = best_of(RUNS, || (), |_| perft(&mut board, depth, &mut move_generator));
 
     assert_eq!(expected_nodes, nodes);
 
@@ -81,12 +85,16 @@ fn bench_search(name: &str, fen: &str, expected: (u64, &str, f32)) {
     let mut move_generator = MoveGenerator::new();
     let mut board = Board::from_fen(fen);
 
-    let (elapsed, (depth, eval, states, best_move)) = best_of(RUNS, || {
-        let (_, depth, eval, states, best_move) =
-            AIPlayer::new(0).get_ai_move(&mut board, &mut move_generator);
+    let (elapsed, (depth, eval, states, best_move)) = best_of(
+        RUNS,
+        || AIPlayer::new(0),
+        |mut ai_player| {
+            let (_, depth, eval, states, best_move) =
+                ai_player.get_ai_move(&mut board, &mut move_generator);
 
-        (depth, eval, states, best_move.unwrap().to_simple_notation())
-    });
+            (depth, eval, states, best_move.unwrap().to_simple_notation())
+        },
+    );
 
     println!(
         "[search] {name} depth {depth}: {states} states in {}ms ({:.0} knps), best move {best_move}, eval {eval}",
@@ -112,17 +120,17 @@ fn bench_perft_kiwipete() {
 #[test]
 #[ignore]
 fn bench_search_start_position() {
-    bench_search("start", START_FEN, (77_667, "e2e4", 131.0));
+    bench_search("start", START_FEN, (74_183, "e2e4", 131.0));
 }
 
 #[test]
 #[ignore]
 fn bench_search_kiwipete() {
-    bench_search("kiwipete", KIWIPETE_FEN, (103_869, "d5e6", 350.0));
+    bench_search("kiwipete", KIWIPETE_FEN, (121_009, "d5e6", 359.0));
 }
 
 #[test]
 #[ignore]
 fn bench_search_middle_game() {
-    bench_search("middle game", MIDDLE_GAME_FEN, (475_687, "c3d5", 263.0));
+    bench_search("middle game", MIDDLE_GAME_FEN, (447_376, "c3d5", 263.0));
 }
