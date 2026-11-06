@@ -19,9 +19,7 @@ use super::{
     utils::get_piece_worth,
 };
 
-pub fn get_sorted_moves(
-    board: &mut Board, color: f32, move_generator: &mut MoveGenerator,
-) -> Vec<Move> {
+pub fn get_sorted_moves(board: &mut Board, move_generator: &mut MoveGenerator) -> Vec<Move> {
     let (mut moves, attack_data) = move_generator.get_moves(board).unwrap();
 
     let end_game = is_end_game(board);
@@ -67,19 +65,12 @@ pub fn get_sorted_moves(
 
     // TODO order also based on the hashmap with previous generated states
 
-    if color == 1.0 {
-        moves.sort_by(|a, b| {
-            b.move_worth
-                .partial_cmp(&a.move_worth)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-    } else {
-        moves.sort_by(|a, b| {
-            a.move_worth
-                .partial_cmp(&b.move_worth)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-    }
+    // The move worth is relative to the side to move, so the best moves come first
+    moves.sort_by(|a, b| {
+        b.move_worth
+            .partial_cmp(&a.move_worth)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     //if best_move.is_some() {
     //    let best_move = best_move.clone().unwrap();

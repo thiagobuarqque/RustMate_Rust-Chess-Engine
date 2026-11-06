@@ -42,7 +42,7 @@ impl AIPlayer {
         let mut depth = 5;
 
         let (value, best_move) =
-            self.negamax(board, f32::MIN, f32::MAX, -1.0, depth, move_generator);
+            self.negamax(board, f32::MIN, f32::MAX, depth, move_generator);
 
         if best_move.is_some() {
             let best_move = best_move.unwrap();
@@ -68,7 +68,7 @@ impl AIPlayer {
     }
 
     fn negamax(
-        &mut self, board: &mut Board, mut alpha: f32, mut beta: f32, color: f32, depth: u8,
+        &mut self, board: &mut Board, mut alpha: f32, mut beta: f32, depth: u8,
         move_generator: &mut MoveGenerator,
     ) -> (f32, Option<Move>) {
         //if self._is_time_over() {
@@ -89,7 +89,8 @@ impl AIPlayer {
         }
 
         if depth == 0 || board.is_game_finished() {
-            let value = get_board_value(board, color) * color;
+            // The evaluation is relative to the side to move
+            let value = get_board_value(board, 1.0);
 
             self.transposition_table.store(
                 key,
@@ -106,7 +107,7 @@ impl AIPlayer {
 
         let mut best_move: Option<Move> = None;
 
-        let mut moves: Vec<Move> = get_sorted_moves(board, color, move_generator);
+        let mut moves: Vec<Move> = get_sorted_moves(board, move_generator);
 
         let mut value = f32::MIN;
 
@@ -114,7 +115,7 @@ impl AIPlayer {
             board.move_piece(_move);
 
             let result = -self
-                .negamax(board, -beta, -alpha, -color, depth - 1, move_generator)
+                .negamax(board, -beta, -alpha, depth - 1, move_generator)
                 .0;
 
             if result > value {
