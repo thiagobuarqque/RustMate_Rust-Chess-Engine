@@ -98,6 +98,9 @@ pub const QUEEN_SQUARE_TABLE_EG: [f32; 64] = [
 
 pub const END_GAME_PIECES_THRESHOLD: f32 = 5.0;
 
+/// Above any material evaluation, adjusted by depth to prefer faster mates
+pub const MATE_SCORE: f32 = 1_000_000.0;
+
 pub const BISHOP_WORTH: f32 = 300.0;
 pub const KING_WORTH: f32 = 20000.0;
 pub const KNIGHT_WORTH: f32 = 300.0;
