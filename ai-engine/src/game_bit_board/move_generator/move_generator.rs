@@ -171,7 +171,7 @@ impl MoveGenerator {
                     WINNER_WHITE
                 };
 
-            board.set_winner(winner.to_string());
+            board.set_winner(winner);
         }
 
         Ok((moves, attack_data))
