@@ -12,6 +12,8 @@ use game_bit_board::{
 
 mod ai;
 mod api;
+#[cfg(test)]
+mod benchmarks;
 mod constants;
 mod dto;
 mod game_bit_board;
