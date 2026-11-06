@@ -36,7 +36,7 @@ pub struct Board {
     // Bit 7: Black queenside castling.
     castling_rights: u8,
 
-    winner: String,
+    winner: &'static str,
     full_move_clock: u32,
     half_move_clock: u32,
 
@@ -85,7 +85,7 @@ impl Board {
             black_king_moved: false,
             white_king_moved: false,
             castling_rights: 0,
-            winner: WINNER_NONE.to_string(),
+            winner: WINNER_NONE,
             full_move_clock: 1,
             half_move_clock: 0,
             moves_history: Vec::new(),
@@ -179,7 +179,7 @@ impl Board {
             board.full_move_clock = parts[5].parse::<u32>().unwrap();
         }
 
-        board.winner = WINNER_NONE.to_string();
+        board.winner = WINNER_NONE;
 
         let mut zobrist = board.zobrist.clone();
 
@@ -220,7 +220,7 @@ impl Board {
         self.side_to_move = Color::White;
         self.black_king_moved = false;
         self.white_king_moved = false;
-        self.winner = WINNER_NONE.to_string();
+        self.winner = WINNER_NONE;
         self.full_move_clock = 1;
         self.half_move_clock = 0;
         self.moves_history = Vec::new();
@@ -230,9 +230,9 @@ impl Board {
         self.white_captures = Vec::with_capacity(16);
     }
 
-    pub fn set_winner(&mut self, winner: String) { self.winner = winner; }
+    pub fn set_winner(&mut self, winner: &'static str) { self.winner = winner; }
 
-    pub fn get_winner(&self) -> String { self.winner.clone() }
+    pub fn get_winner(&self) -> &'static str { self.winner }
 
     pub fn get_black_captures(&self) -> &Vec<PieceType> { &self.black_captures }
 
@@ -340,7 +340,7 @@ impl Board {
         self.side_to_move = self.side_to_move.opponent();
 
         if self.is_game_finished() {
-            self.winner = WINNER_NONE.to_string();
+            self.winner = WINNER_NONE;
         }
 
         self.moves_history.remove(self.moves_history.len() - 1);
