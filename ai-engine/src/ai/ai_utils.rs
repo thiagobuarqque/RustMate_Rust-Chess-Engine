@@ -43,12 +43,12 @@ pub fn get_sorted_moves(board: &mut Board, move_generator: &mut MoveGenerator) -
             _move.sum_to_move_worth(-get_piece_worth(_move.piece_type))
         }
 
-        _move.sum_to_move_worth(get_position_value(
-            end_game,
-            _move.piece_type,
-            _move.get_from(),
-            _move.color.is_white(),
-        ));
+        let white = _move.color.is_white();
+
+        _move.sum_to_move_worth(
+            get_position_value(end_game, _move.piece_type, _move.get_to(), white)
+                - get_position_value(end_game, _move.piece_type, _move.get_from(), white),
+        );
 
         //let mut move_clone = &mut _move.clone();
         //
