@@ -15,6 +15,18 @@ use super::{
     zobrist::zobrist::Zobrist,
 };
 
+/// Board state before a move, restored when the move is unmade
+#[derive(Clone, Copy)]
+struct UndoState {
+    bitboards: [u64; 8],
+    castling_rights: u8,
+    en_passant_bb_position: u64,
+    en_passant_piece_square_bb: u64,
+    black_king_moved: bool,
+    white_king_moved: bool,
+    zobrist_hash: u64,
+}
+
 #[derive(Clone)]
 pub struct Board {
     bitboards: [u64; 8],
@@ -41,6 +53,7 @@ pub struct Board {
     half_move_clock: u32,
 
     moves_history: Vec<Move>,
+    undo_states: Vec<UndoState>,
     zobrist: Zobrist,
 }
 
@@ -89,6 +102,7 @@ impl Board {
             full_move_clock: 1,
             half_move_clock: 0,
             moves_history: Vec::new(),
+            undo_states: Vec::new(),
             zobrist: Zobrist::new(),
             black_captures: Vec::with_capacity(16),
             white_captures: Vec::with_capacity(16),
@@ -224,6 +238,7 @@ impl Board {
         self.full_move_clock = 1;
         self.half_move_clock = 0;
         self.moves_history = Vec::new();
+        self.undo_states = Vec::new();
         self.zobrist = Zobrist::new();
 
         self.black_captures = Vec::with_capacity(16);
@@ -302,13 +317,15 @@ impl Board {
     }
 
     fn save_current_state(&mut self, _move: &mut Move) {
-        _move.castling_rights = self.castling_rights;
-        _move.bitboards = self.bitboards;
-        _move.board_en_passant_bb_position = self.en_passant_bb_position;
-        _move.board_en_passant_bb_piece_square = self.en_passant_piece_square_bb;
-        _move.black_king_moved = self.black_king_moved;
-        _move.white_king_moved = self.white_king_moved;
-        _move.zobrist_hash = self.zobrist.get_hash();
+        self.undo_states.push(UndoState {
+            bitboards: self.bitboards,
+            castling_rights: self.castling_rights,
+            en_passant_bb_position: self.en_passant_bb_position,
+            en_passant_piece_square_bb: self.en_passant_piece_square_bb,
+            black_king_moved: self.black_king_moved,
+            white_king_moved: self.white_king_moved,
+            zobrist_hash: self.zobrist.get_hash(),
+        });
         self.moves_history.push(*_move);
     }
 
@@ -323,13 +340,15 @@ impl Board {
     }
 
     fn unmake_move(&mut self, _move: &mut Move) {
-        self.castling_rights = _move.castling_rights;
-        self.bitboards = _move.bitboards;
-        self.en_passant_bb_position = _move.board_en_passant_bb_position;
-        self.en_passant_piece_square_bb = _move.board_en_passant_bb_piece_square;
-        self.black_king_moved = _move.black_king_moved;
-        self.white_king_moved = _move.white_king_moved;
-        self.zobrist.set_hash(_move.zobrist_hash);
+        let undo_state = self.undo_states.pop().unwrap();
+
+        self.castling_rights = undo_state.castling_rights;
+        self.bitboards = undo_state.bitboards;
+        self.en_passant_bb_position = undo_state.en_passant_bb_position;
+        self.en_passant_piece_square_bb = undo_state.en_passant_piece_square_bb;
+        self.black_king_moved = undo_state.black_king_moved;
+        self.white_king_moved = undo_state.white_king_moved;
+        self.zobrist.set_hash(undo_state.zobrist_hash);
 
         if self.side_to_move.is_white() {
             self.full_move_clock -= 1;
@@ -783,9 +802,6 @@ mod tests {
         board.move_piece(&mut Move::dummy_from_to(Squares::D4, Squares::D5));
 
         let mut _move = Move::dummy_with_flags(DOUBLE_PAWN_PUSH, Squares::C7, Squares::C5);
-
-        _move.set_en_passant_bb_position(BBPositions::C6);
-        _move.set_en_passant_bb_piece_square(BBPositions::C5);
 
         board.move_piece(&mut _move);
 
