@@ -403,14 +403,14 @@ impl MoveGenerator {
         &self, capture: bool, from: usize, moves: &mut Vec<Move>, target_square: usize,
     ) {
         let flags = if capture {
-            vec![
+            [
                 KNIGHT_PROMOTION_CAPTURE,
                 BISHOP_PROMOTION_CAPTURE,
                 ROOK_PROMOTION_CAPTURE,
                 QUEEN_PROMOTION_CAPTURE,
             ]
         } else {
-            vec![
+            [
                 KNIGHT_PROMOTION,
                 BISHOP_PROMOTION,
                 ROOK_PROMOTION,
