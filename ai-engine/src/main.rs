@@ -5,6 +5,7 @@ use std::{io, num::ParseIntError, sync::Mutex};
 
 use actix_cors::Cors;
 use actix_web::{http::header, middleware::Logger, web::Data, App, HttpServer};
+use ai::ai_player::AIPlayer;
 use api::{ai_controller, board_controller};
 use game_bit_board::{
     _move::_move::Move, board::Board, move_generator::move_generator::MoveGenerator,
@@ -51,6 +52,8 @@ async fn main() -> std::io::Result<()> {
 
     let board = Data::new(Mutex::new(Board::new()));
     let move_generator = Data::new(Mutex::new(MoveGenerator::new()));
+    // Kept between requests so its transposition table is reused
+    let ai_player = Data::new(Mutex::new(AIPlayer::new(3)));
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -67,6 +70,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(Data::clone(&board))
             .app_data(Data::clone(&move_generator))
+            .app_data(Data::clone(&ai_player))
             .service(board_controller::get_board)
             .service(board_controller::get_move_generation_count)
             .service(board_controller::load_fen)
