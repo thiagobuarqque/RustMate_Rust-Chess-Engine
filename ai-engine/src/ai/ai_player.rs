@@ -138,7 +138,12 @@ impl AIPlayer {
 
         let alpha_original = alpha;
 
+        let mut table_move = None;
+
         if let Some(entry) = self.transposition_table.retrieve(key) {
+            // Even from a shallower search, the best move is likely still the best
+            table_move = entry.best_move;
+
             // Only a search at least as deep as this one can be reused
             if entry.depth >= depth {
                 match entry.flag {
@@ -190,6 +195,17 @@ impl AIPlayer {
             });
 
             return (value, None);
+        }
+
+        // Trying the best move first gives more and earlier cutoffs
+        if let Some(table_move) = table_move {
+            let index = moves
+                .iter()
+                .position(|_move| _move.as_u64() == table_move.as_u64());
+
+            if let Some(index) = index {
+                moves[..=index].rotate_right(1);
+            }
         }
 
         let mut value = f32::MIN;
