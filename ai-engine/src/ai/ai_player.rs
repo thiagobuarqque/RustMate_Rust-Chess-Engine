@@ -16,19 +16,39 @@ use super::{
     transposition_table::{EntryFlag, TranspositionTable, TranspositionTableEntry},
 };
 
+/// Deepest search a time-limited player tries
+const MAX_DEPTH: u8 = 64;
+
+/// The clock is checked once every this many states, checking it on every
+/// state is too slow
+const TIME_CHECK_INTERVAL: u64 = 1024;
+
 pub struct AIPlayer {
     transposition_table: TranspositionTable,
-    time_to_think: u64,
+    time_to_think: Duration,
+    max_depth: u8,
+    root_depth: u8,
     start_time: Instant,
     interruped: bool,
     states: u64,
 }
 
 impl AIPlayer {
+    /// Searches deeper and deeper until `time_to_think` seconds are over
     pub fn new(time_to_think: u64) -> Self {
+        Self::with_limits(Duration::from_secs(time_to_think), MAX_DEPTH)
+    }
+
+    /// Searches up to `depth` without a time limit, so results are
+    /// reproducible
+    pub fn with_fixed_depth(depth: u8) -> Self { Self::with_limits(Duration::MAX, depth) }
+
+    fn with_limits(time_to_think: Duration, max_depth: u8) -> Self {
         Self {
             transposition_table: TranspositionTable::new(),
             time_to_think,
+            max_depth,
+            root_depth: 0,
             start_time: Instant::now(),
             interruped: false,
             states: 0,
@@ -40,12 +60,40 @@ impl AIPlayer {
     ) -> (u128, u8, f32, u64, Option<Move>) {
         self.start_time = Instant::now();
         self.states = 0;
+        self.interruped = false;
         self.transposition_table.reset_hits();
 
-        let mut depth = 5;
+        let mut depth = 0;
+        let mut value = 0.0;
+        let mut best_move = None;
 
-        let (value, best_move) =
-            self.negamax(board, f32::MIN, f32::MAX, depth, move_generator);
+        // Iterative deepening: only the result of the deepest completed search
+        // is used
+        for search_depth in 1..=self.max_depth {
+            // The next search takes longer than all the previous ones, it would not
+            // finish in the remaining time
+            if search_depth > 1 && self.start_time.elapsed() >= self.time_to_think / 2 {
+                break;
+            }
+
+            self.root_depth = search_depth;
+
+            let (search_value, search_move) =
+                self.negamax(board, f32::MIN, f32::MAX, search_depth, move_generator);
+
+            if self.interruped {
+                break;
+            }
+
+            depth = search_depth;
+            value = search_value;
+            best_move = search_move;
+
+            // Game over, or a forced mate that a deeper search can't change
+            if best_move.is_none() || value.abs() >= MATE_SCORE {
+                break;
+            }
+        }
 
         if best_move.is_some() {
             let best_move = best_move.unwrap();
@@ -74,12 +122,17 @@ impl AIPlayer {
         &mut self, board: &mut Board, mut alpha: f32, mut beta: f32, depth: u8,
         move_generator: &mut MoveGenerator,
     ) -> (f32, Option<Move>) {
-        //if self._is_time_over() {
-        //    self.interruped = true;
-        //
-        //    return f32::MIN;
-        //}
         self.states += 1;
+
+        // The depth 1 search is never interrupted, so there is always a move
+        if self.root_depth > 1 && self.states % TIME_CHECK_INTERVAL == 0 && self.is_time_over() {
+            self.interruped = true;
+        }
+
+        // Unwind without storing anything, the search is incomplete
+        if self.interruped {
+            return (0.0, None);
+        }
 
         let key = board.get_zobrist_hash();
 
@@ -155,6 +208,10 @@ impl AIPlayer {
 
             board.unmake_last_move();
 
+            if self.interruped {
+                return (0.0, None);
+            }
+
             alpha = alpha.max(value);
 
             if alpha >= beta {
@@ -183,10 +240,7 @@ impl AIPlayer {
         (value, best_move)
     }
 
-    #[inline(always)]
-    fn _is_time_over(&self) -> bool {
-        Instant::now().duration_since(self.start_time) >= Duration::new(self.time_to_think, 0)
-    }
+    fn is_time_over(&self) -> bool { self.start_time.elapsed() >= self.time_to_think }
 }
 
 #[cfg(test)]
@@ -203,7 +257,7 @@ mod tests {
         let mut move_generator = MoveGenerator::new();
 
         let (_, _, _, _, mut best_move) =
-            AIPlayer::new(0).get_ai_move(&mut board, &mut move_generator);
+            AIPlayer::with_fixed_depth(5).get_ai_move(&mut board, &mut move_generator);
 
         let mut best_move = best_move.take().expect("The AI should always return a move");
 
@@ -236,7 +290,7 @@ mod tests {
     fn test_reuses_previous_search() {
         let mut board = Board::from_fen(INITIAL_FEN);
         let mut move_generator = MoveGenerator::new();
-        let mut ai_player = AIPlayer::new(0);
+        let mut ai_player = AIPlayer::with_fixed_depth(5);
 
         let (_, _, _, first_states, first_move) =
             ai_player.get_ai_move(&mut board, &mut move_generator);
@@ -248,5 +302,31 @@ mod tests {
             first_move.unwrap().to_simple_notation(),
             second_move.unwrap().to_simple_notation()
         );
+    }
+
+    #[test]
+    fn test_returns_a_move_without_time() {
+        let mut board = Board::from_fen(INITIAL_FEN);
+        let mut move_generator = MoveGenerator::new();
+
+        let (_, depth, _, _, best_move) =
+            AIPlayer::new(0).get_ai_move(&mut board, &mut move_generator);
+
+        assert_eq!(1, depth);
+        assert!(best_move.is_some());
+    }
+
+    #[test]
+    fn test_stops_when_time_is_up() {
+        let fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
+        let mut board = Board::from_fen(fen);
+        let mut move_generator = MoveGenerator::new();
+
+        let (duration, depth, _, _, best_move) =
+            AIPlayer::new(1).get_ai_move(&mut board, &mut move_generator);
+
+        assert!(duration <= 1_250, "Took {duration}ms");
+        assert!(depth >= 1);
+        assert!(best_move.is_some());
     }
 }
