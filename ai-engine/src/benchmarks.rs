@@ -87,7 +87,7 @@ fn bench_search(name: &str, fen: &str, expected: (u64, &str, f32)) {
 
     let (elapsed, (depth, eval, states, best_move)) = best_of(
         RUNS,
-        || AIPlayer::new(0),
+        || AIPlayer::with_fixed_depth(5),
         |mut ai_player| {
             let (_, depth, eval, states, best_move) =
                 ai_player.get_ai_move(&mut board, &mut move_generator);
@@ -97,7 +97,8 @@ fn bench_search(name: &str, fen: &str, expected: (u64, &str, f32)) {
     );
 
     println!(
-        "[search] {name} depth {depth}: {states} states in {}ms ({:.0} knps), best move {best_move}, eval {eval}",
+        "[search] {name} depth {depth}: {states} states in {}ms ({:.0} knps), \
+         best move {best_move}, eval {eval}",
         elapsed.as_millis(),
         states as f64 / elapsed.as_secs_f64() / 1_000.0
     );
@@ -120,17 +121,17 @@ fn bench_perft_kiwipete() {
 #[test]
 #[ignore]
 fn bench_search_start_position() {
-    bench_search("start", START_FEN, (74_183, "e2e4", 131.0));
+    bench_search("start", START_FEN, (81_223, "e2e4", 131.0));
 }
 
 #[test]
 #[ignore]
 fn bench_search_kiwipete() {
-    bench_search("kiwipete", KIWIPETE_FEN, (121_009, "d5e6", 359.0));
+    bench_search("kiwipete", KIWIPETE_FEN, (133_254, "d5e6", 359.0));
 }
 
 #[test]
 #[ignore]
 fn bench_search_middle_game() {
-    bench_search("middle game", MIDDLE_GAME_FEN, (447_376, "c3d5", 263.0));
+    bench_search("middle game", MIDDLE_GAME_FEN, (502_807, "c3d5", 263.0));
 }
