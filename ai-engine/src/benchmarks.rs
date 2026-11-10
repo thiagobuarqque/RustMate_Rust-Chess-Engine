@@ -121,17 +121,17 @@ fn bench_perft_kiwipete() {
 #[test]
 #[ignore]
 fn bench_search_start_position() {
-    bench_search("start", START_FEN, (81_223, "e2e4", 131.0));
+    bench_search("start", START_FEN, (68_161, "e2e4", 131.0));
 }
 
 #[test]
 #[ignore]
 fn bench_search_kiwipete() {
-    bench_search("kiwipete", KIWIPETE_FEN, (133_254, "d5e6", 359.0));
+    bench_search("kiwipete", KIWIPETE_FEN, (129_610, "d5e6", 359.0));
 }
 
 #[test]
 #[ignore]
 fn bench_search_middle_game() {
-    bench_search("middle game", MIDDLE_GAME_FEN, (502_807, "c3d5", 263.0));
+    bench_search("middle game", MIDDLE_GAME_FEN, (89_392, "c3d5", 263.0));
 }
